@@ -7,14 +7,17 @@ package vss.a4.server;
 
 import java.net.MalformedURLException;
 import java.rmi.AccessException;
+import java.rmi.AlreadyBoundException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import vss.a4.mainserver.Test;
+import vss.a4.mainserver.TestImpl;
 
 /**
  *
@@ -25,16 +28,19 @@ public class VssA4Server {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws AlreadyBoundException {
         try {
 //            Registry registry = LocateRegistry.getRegistry("192.168.1.66");
 //            
 //            Test test = (Test) registry.lookup("Hello");
 //            
 //            test.sayHello();
-            String codebase = "file:/C:\\Users\\abuch_000\\Documents\\NetBeansProjects\\vss-a4-server\\build\\classes";
-
-            System.setProperty("java.rmi.server.codebase", codebase);
+            Registry vRegistry = LocateRegistry.getRegistry(1099);
+            Test2Impl testImpl = new Test2Impl();
+            Test2 test = (Test2) UnicastRemoteObject.exportObject(testImpl, 0);
+            
+            vRegistry.bind("Hello", test);
+            
             
             Test server = (Test)Naming.lookup("rmi://192.168.1.66/Hello");
             server.sayHello();
