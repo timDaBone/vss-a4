@@ -1,0 +1,3 @@
+cd "build\classes\"
+java -Djava.rmi.server.codebase=file:/build\classes\ -Djava.security.policy=file:/server.policy vss.a4.server.VssA4Server
+cmd
