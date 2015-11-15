@@ -28,7 +28,7 @@ public class VssA4Server {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) throws AlreadyBoundException {
+    public static void main(String[] args) throws AlreadyBoundException, InterruptedException {
         try {
 //            Registry registry = LocateRegistry.getRegistry("192.168.1.66");
 //            
@@ -40,10 +40,11 @@ public class VssA4Server {
             Test2 test = (Test2) UnicastRemoteObject.exportObject(testImpl, 0);
             
             vRegistry.bind("Hello", test);
-            
+            System.out.println("bound");
             
             Test server = (Test)Naming.lookup("rmi://192.168.1.66/Hello");
             server.sayHello();
+            
         } catch (MalformedURLException ex) {
             Logger.getLogger(VssA4Server.class.getName()).log(Level.SEVERE, null, ex);
         } catch (RemoteException ex) {

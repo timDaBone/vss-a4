@@ -11,6 +11,7 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import vss.a4.server.Test2;
 
 /**
  *
@@ -37,7 +38,7 @@ public class VssA4Mainserver {
             
             Thread.sleep(3000);
             
-            Test server = (Test)Naming.lookup("rmi://192.168.1.58/Hello");
+            Test2 server = (Test2)Naming.lookup("rmi://192.168.1.58/Hello");
             server.sayHello();
 
         } catch (RemoteException ex) {
