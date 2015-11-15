@@ -35,8 +35,8 @@ public class VssA4Mainserver {
 
             vRegistry.bind("Hello", test);
             
-            Thread.sleep(3000);
-            
+            Thread.sleep(10000);
+            System.out.println("Ready!");
             Test server = (Test)Naming.lookup("rmi://192.168.1.58/Hello");
             server.sayHello();
 
