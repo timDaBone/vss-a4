@@ -36,7 +36,7 @@ public class MainSupervisor extends Thread {
             } catch (InterruptedException ex) {
                 ex.printStackTrace();
             }
-            
+            System.out.println("Get eating counters");
             // read out clients
             int index = 0;
             for(Client client: clients) {
@@ -44,6 +44,8 @@ public class MainSupervisor extends Thread {
                 try {
                     philosophEatingCounters.set(index, client.getPhiloCount());
                 } catch (Exception ex) {
+                    
+                    ex.printStackTrace();
                     distributionServer.startClients();
                 }
                 

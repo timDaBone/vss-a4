@@ -32,6 +32,7 @@ public class DistributionServer extends Thread implements Server {
     public DistributionServer() throws Exception {
         this.clientIpAdresses = new ArrayList<>();
         this.clients = new ArrayList<>();
+        this.mainSupervisor = null;
 
         // Get registry and bind server
         Registry registry = LocateRegistry.getRegistry(1099);
@@ -79,21 +80,23 @@ public class DistributionServer extends Thread implements Server {
         // todo methodenname ändern
 
         //Supervisor auslesen
-        int supervisorCounterSize = mainSupervisor.getEatingCounters().size();
-        for (int index = 0; index < supervisorCounterSize; index++) {
-            if (index < philosophEatingCounters.size()) {
-                philosophEatingCounters.set(index, mainSupervisor.getEatingCounters().get(index));
+        if (mainSupervisor != null) {
+            int supervisorCounterSize = mainSupervisor.getEatingCounters().size();
+            for (int index = 0; index < supervisorCounterSize; index++) {
+                if (index < philosophEatingCounters.size()) {
+                    philosophEatingCounters.set(index, mainSupervisor.getEatingCounters().get(index));
 
+                }
             }
+            //Clients stoppen, initClients TODO
+            if (mainSupervisor.isAlive()) {
+
+                mainSupervisor.stopMainSupervisor();
+            }
+
         }
-
-        //Clients stoppen, initClients TODO
-        if (mainSupervisor.isAlive()) {
-
-            mainSupervisor.stopMainSupervisor();
-        }
-
         initClients();
+
     }
 
     private void stopClients() throws RemoteException {
@@ -106,9 +109,9 @@ public class DistributionServer extends Thread implements Server {
         System.out.println(clientIpAdresses);
         System.out.println("EatingCounters: " + this.philosophEatingCounters);
         try {
-            
+
             stopClients();
-            
+
             for (String ipAdress : clientIpAdresses) {
                 System.out.println("Adding " + ipAdress);
                 Client client = null;

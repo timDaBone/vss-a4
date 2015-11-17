@@ -31,7 +31,8 @@ public class Philosoph extends Thread {
         while (shouldRun) {
             this.counter++;
             try {
-                Thread.sleep(100);
+                Thread.sleep(1000);
+        System.out.println("Philosoph " + this + " eating");
             } catch (InterruptedException ex) {
                 ex.printStackTrace();
             }
@@ -39,6 +40,7 @@ public class Philosoph extends Thread {
     }
 
     void stopPhilosoph() {
+        System.out.println("Philosoph " + this + " stopped");
         shouldRun = false;
     }
 }
