@@ -14,6 +14,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,6 +35,7 @@ public class DistributedClient extends Thread implements Client {
     public DistributedClient(String serverIpAdress, String clientIpAdress, int registryPort) {
         this.serverIpAdress = serverIpAdress;
         this.clientIpAdress = clientIpAdress;
+        this.clients = new ArrayList<>();
 
         try {
             this.server = (Server) Naming.lookup("rmi://" + serverIpAdress + "/server");

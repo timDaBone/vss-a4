@@ -60,7 +60,9 @@ public class DistributionServer extends Thread implements Server {
         try {
             for (String ipAdress : clientIpAdresses) {
                 System.out.println("Adding " + ipAdress);
-                clients.add((Client) Naming.lookup("rmi://" + ipAdress + "/client"));
+                Client client = (Client) Naming.lookup("rmi://" + ipAdress + "/client");
+                clients.add(client);
+                client.setClients(clientIpAdresses);
             }
         } catch (NotBoundException ex) {
             Logger.getLogger(DistributionServer.class.getName()).log(Level.SEVERE, null, ex);
