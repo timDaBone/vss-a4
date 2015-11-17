@@ -1,4 +1,4 @@
-package vss.a4.mainserver;
+package test.vss.a4.mainserver;
 
 import java.net.MalformedURLException;
 import java.rmi.AccessException;
@@ -11,7 +11,7 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import vss.a4.server.Test2;
+import test.vss.a4.server.Test2;
 
 /**
  *

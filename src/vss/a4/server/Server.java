@@ -5,17 +5,15 @@
  */
 package vss.a4.server;
 
-import vss.a4.mainserver.Test;
+import java.rmi.Remote;
+import java.rmi.RemoteException;
 
 /**
  *
- * @author Tim
+ * @author abuch_000
  */
-public class Test2Impl  implements Test2 {
-
-    @Override
-    public void sayHello() {
-        System.out.println("Hello ma friend!");
-    }
+public interface Server extends Remote{
+    
+    public void addClient(String ipAdress) throws RemoteException;
     
 }

@@ -3,16 +3,16 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package vss.a4.mainserver;
+package test.vss.a4.server;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 /**
  *
- * @author abuch_000
+ * @author Tim
  */
-public interface Test extends Remote {
+public interface Test2 extends Remote {
     
     public void sayHello() throws RemoteException;
     
