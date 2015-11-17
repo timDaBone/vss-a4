@@ -14,6 +14,7 @@ public class UserInterface extends Thread {
 
     private final DistributionServer server;
     private final BufferedReader reader;
+    private boolean firstInit = true;
 
     public UserInterface(DistributionServer server) {
         this.server = server;
@@ -29,10 +30,11 @@ public class UserInterface extends Thread {
                 String[] startConfigParts = startConfig.split(",");
                 int placeCount = Integer.parseInt(startConfigParts[0]);
                 int philliCount = Integer.parseInt(startConfigParts[1]);
-                server.initServer(placeCount, philliCount);
+                
                 System.out.println("Connect Clients and press Enter if all Clients connected ... ");
                 reader.readLine();
-                server.initClients();
+                server.initServer(placeCount, philliCount, firstInit);
+                firstInit = false;
             }
         } catch (Exception e) {
             e.printStackTrace();

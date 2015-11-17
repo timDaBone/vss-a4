@@ -26,6 +26,8 @@ public class DistributionServer extends Thread implements Server {
     List<Client> clients;
     private int philliCount;
     private int placeCount;
+    private MainSupervisor mainSupervisor;
+    List<Integer> philosophEatingCounters;
 
     public DistributionServer() throws Exception {
         this.clientIpAdresses = new ArrayList<>();
@@ -43,24 +45,120 @@ public class DistributionServer extends Thread implements Server {
             UserInterface userInterface = new UserInterface(server);
             userInterface.start();
         } catch (Exception ex) {
-            Logger.getLogger(DistributionServer.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
         }
     }
 
-    void initServer(int placeCount, int philliCount) {
+    void initServer(int placeCount, int philliCount, boolean firstInit) throws Exception {
         this.placeCount = placeCount;
         this.philliCount = philliCount;
+        if (firstInit) {
+            philosophEatingCounters = new ArrayList<>();
+            for (int index = 0; index < philliCount; index++) {
+                philosophEatingCounters.add(0);
+            }
+        } else {
+            int difference = philliCount - philosophEatingCounters.size();
+            if (difference >= 0) {
+                for (int index = 0; index < difference; index++) {
+                    philosophEatingCounters.add(0);
+                }
+            } else {
+                int size = philosophEatingCounters.size();
+                for (int index = -1; index >= difference; index--) {
+                    philosophEatingCounters.remove(index % size);
+                }
+            }
+        }
+
+        startClients();
+
     }
 
-    void initClients() throws Exception {
-        System.out.println(clientIpAdresses);
-        for (String ipAdress : clientIpAdresses) {
-            System.out.println("Adding " + ipAdress);
-            Client client = (Client) Naming.lookup("rmi://" + ipAdress + "/client");
-            clients.add(client);
-            client.setClients(clientIpAdresses);
+    public void startClients() {
+        // todo methodenname ändern
+
+        //Supervisor auslesen
+        int supervisorCounterSize = mainSupervisor.getEatingCounters().size();
+        for (int index = 0; index < supervisorCounterSize; index++) {
+            if (index < philosophEatingCounters.size()) {
+                philosophEatingCounters.set(index, mainSupervisor.getEatingCounters().get(index));
+
+            }
         }
-        this.start();
+
+        //Clients stoppen, initClients TODO
+        if (mainSupervisor.isAlive()) {
+
+            mainSupervisor.stopMainSupervisor();
+        }
+
+        initClients();
+    }
+
+    private void stopClients() throws RemoteException {
+        for (Client client : clients) {
+            client.stopClient();
+        }
+    }
+
+    void initClients() {
+        System.out.println(clientIpAdresses);
+        System.out.println("EatingCounters: " + this.philosophEatingCounters);
+        try {
+            
+            stopClients();
+            
+            for (String ipAdress : clientIpAdresses) {
+                System.out.println("Adding " + ipAdress);
+                Client client = null;
+                try {
+                    client = (Client) Naming.lookup("rmi://" + ipAdress + "/client");
+                } catch (RemoteException e) {
+                    clientIpAdresses.remove(ipAdress);
+                    clients.clear();
+                    initClients();
+                    return;
+                } catch (NotBoundException ex) {
+                    ex.printStackTrace();
+                } catch (MalformedURLException ex) {
+                    ex.printStackTrace();
+                }
+
+                if (client != null) {
+                    try {
+                        clients.add(client);
+                        client.setClients(clientIpAdresses);
+                    } catch (Exception ex) {
+                        initClients();
+                        clients.clear();
+                        return;
+                    }
+
+                }
+            }
+
+            // todo verteilung über die clients starten
+            int index = 0;
+            for (Client client : clients) {
+
+                // Schleife ändern, wenn philosophen eingeführt werden TODO
+                client.init(philosophEatingCounters.get(index), 0);
+                index++;
+            }
+
+            for (Client client : clients) {
+
+                client.startClient();
+            }
+        } catch (Exception ex) {
+            initClients();
+            clients.clear();
+            return;
+        }
+
+        mainSupervisor = new MainSupervisor(clients, this);
+        mainSupervisor.start();
     }
 
     @Override
@@ -70,6 +168,11 @@ public class DistributionServer extends Thread implements Server {
 
     public void addClient(String ipAdress) {
         this.clientIpAdresses.add(ipAdress);
+    }
+
+    @Override
+    public void reportError() throws RemoteException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }
