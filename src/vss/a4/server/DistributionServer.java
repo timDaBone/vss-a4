@@ -27,26 +27,24 @@ public class DistributionServer extends Thread implements Server {
     private int philliCount;
     private int placeCount;
 
-    public DistributionServer() {
+    public DistributionServer() throws Exception{
         this.clientIpAdresses = new ArrayList<>();
         this.clients = new ArrayList<>();
 
         // Get registry and bind server
-        try {
             Registry registry = LocateRegistry.getRegistry(1099);
             Server server = (Server) UnicastRemoteObject.exportObject(this, 0);
             registry.bind("server", server);
-        } catch (RemoteException ex) {
-            Logger.getLogger(DistributionServer.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (AlreadyBoundException ex) {
-            Logger.getLogger(DistributionServer.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }
 
     public static void main(String[] args) {
-        DistributionServer server = new DistributionServer();
-        UserInterface userInterface = new UserInterface(server);
-        userInterface.start();
+        try {
+            DistributionServer server = new DistributionServer();
+            UserInterface userInterface = new UserInterface(server);
+            userInterface.start();
+        } catch (Exception ex) {
+            Logger.getLogger(DistributionServer.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     void initServer(int placeCount, int philliCount) {
@@ -54,23 +52,14 @@ public class DistributionServer extends Thread implements Server {
         this.philliCount = philliCount;
     }
 
-    void initClients() {
+    void initClients() throws Exception{
         System.out.println(clientIpAdresses);
-
-        try {
             for (String ipAdress : clientIpAdresses) {
                 System.out.println("Adding " + ipAdress);
                 Client client = (Client) Naming.lookup("rmi://" + ipAdress + "/client");
                 clients.add(client);
                 client.setClients(clientIpAdresses);
             }
-        } catch (NotBoundException ex) {
-            Logger.getLogger(DistributionServer.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (MalformedURLException ex) {
-            Logger.getLogger(DistributionServer.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (RemoteException ex) {
-            Logger.getLogger(DistributionServer.class.getName()).log(Level.SEVERE, null, ex);
-        }
         this.start();
     }
 

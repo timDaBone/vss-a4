@@ -32,41 +32,32 @@ public class DistributedClient extends Thread implements Client {
     Server server;
     private List<Client> clients;
 
-    public DistributedClient(String serverIpAdress, String clientIpAdress, int registryPort) {
+    public DistributedClient(String serverIpAdress, String clientIpAdress, int registryPort) throws Exception {
         this.serverIpAdress = serverIpAdress;
         this.clientIpAdress = clientIpAdress;
         this.clients = new ArrayList<>();
 
-        try {
             this.server = (Server) Naming.lookup("rmi://" + serverIpAdress + "/server");
 
             Registry registry = LocateRegistry.getRegistry(registryPort);
             Client client = (Client) UnicastRemoteObject.exportObject(this, 0);
             registry.bind("client", client);
 
-        } catch (NotBoundException ex) {
-            ex.printStackTrace();
-        } catch (MalformedURLException ex) {
-            ex.printStackTrace();
-        } catch (RemoteException ex) {
-            ex.printStackTrace();
-        } catch (AlreadyBoundException ex) {
-            Logger.getLogger(DistributedClient.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        
     }
 
     public static void main(String[] args) {
-        DistributedClient distributedClient = new DistributedClient(args[0], args[1], Integer.parseInt(args[2]));
+      
         try {
+            DistributedClient distributedClient = new DistributedClient(args[0], args[1], Integer.parseInt(args[2]));
             distributedClient.server.addClient(distributedClient.clientIpAdress);
-        } catch (RemoteException ex) {
+        } catch (Exception ex) {
             Logger.getLogger(DistributedClient.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
     @Override
-    public void setClients(List<String> clientIpAdresses) throws RemoteException {
-        try {
+    public void setClients(List<String> clientIpAdresses) throws Exception {
             for (String ipAdress : clientIpAdresses) {
                 if (!ipAdress.equals(this.clientIpAdress)) {
                     clients.add((Client) Naming.lookup("rmi://" + ipAdress + "/client"));
@@ -77,13 +68,6 @@ public class DistributedClient extends Thread implements Client {
             for (Client client : clients) {
                 client.hello(this.clientIpAdress);
             }
-        } catch (NotBoundException ex) {
-            Logger.getLogger(DistributionServer.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (MalformedURLException ex) {
-            Logger.getLogger(DistributionServer.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (RemoteException ex) {
-            Logger.getLogger(DistributionServer.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }
 
     @Override

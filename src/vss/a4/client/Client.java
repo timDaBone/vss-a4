@@ -14,6 +14,6 @@ import java.util.List;
  * @author abuch_000
  */
 public interface Client extends Remote {
-    public void setClients(List<String> clientIpAdresses) throws RemoteException;
-    public void hello(String callingIp) throws RemoteException;
+    public void setClients(List<String> clientIpAdresses) throws Exception;
+    public void hello(String callingIp) throws Exception;
 }
