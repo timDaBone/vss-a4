@@ -22,8 +22,8 @@ public class UserInterface extends Thread {
 
     @Override
     public void run() {
-        while (true) {
-            try {
+        try {
+            while (true) {
                 System.out.println("Enter new configuration (Places,Philosophs): ");
                 String startConfig = reader.readLine();
                 String[] startConfigParts = startConfig.split(",");
@@ -33,9 +33,9 @@ public class UserInterface extends Thread {
                 System.out.println("Connect Clients and press Enter if all Clients connected ... ");
                 reader.readLine();
                 server.initClients();
-            } catch (IOException ex) {
-                ex.printStackTrace();
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

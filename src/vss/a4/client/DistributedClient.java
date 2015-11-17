@@ -37,17 +37,16 @@ public class DistributedClient extends Thread implements Client {
         this.clientIpAdress = clientIpAdress;
         this.clients = new ArrayList<>();
 
-            this.server = (Server) Naming.lookup("rmi://" + serverIpAdress + "/server");
+        this.server = (Server) Naming.lookup("rmi://" + serverIpAdress + "/server");
 
-            Registry registry = LocateRegistry.getRegistry(registryPort);
-            Client client = (Client) UnicastRemoteObject.exportObject(this, 0);
-            registry.bind("client", client);
+        Registry registry = LocateRegistry.getRegistry(registryPort);
+        Client client = (Client) UnicastRemoteObject.exportObject(this, 0);
+        registry.bind("client", client);
 
-        
     }
 
     public static void main(String[] args) {
-      
+
         try {
             DistributedClient distributedClient = new DistributedClient(args[0], args[1], Integer.parseInt(args[2]));
             distributedClient.server.addClient(distributedClient.clientIpAdress);
@@ -58,16 +57,16 @@ public class DistributedClient extends Thread implements Client {
 
     @Override
     public void setClients(List<String> clientIpAdresses) throws Exception {
-            for (String ipAdress : clientIpAdresses) {
-                if (!ipAdress.equals(this.clientIpAdress)) {
-                    clients.add((Client) Naming.lookup("rmi://" + ipAdress + "/client"));
-                }
+        for (String ipAdress : clientIpAdresses) {
+            if (!ipAdress.equals(this.clientIpAdress)) {
+                clients.add((Client) Naming.lookup("rmi://" + ipAdress + "/client"));
+            }
 
-            }
-            
-            for (Client client : clients) {
-                client.hello(this.clientIpAdress);
-            }
+        }
+
+        for (Client client : clients) {
+            client.hello(this.clientIpAdress);
+        }
     }
 
     @Override

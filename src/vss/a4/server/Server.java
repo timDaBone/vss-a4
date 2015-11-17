@@ -12,8 +12,8 @@ import java.rmi.RemoteException;
  *
  * @author abuch_000
  */
-public interface Server extends Remote{
-    
+public interface Server extends Remote {
+
     public void addClient(String ipAdress) throws RemoteException;
-    
+
 }

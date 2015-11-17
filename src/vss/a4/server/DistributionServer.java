@@ -27,14 +27,14 @@ public class DistributionServer extends Thread implements Server {
     private int philliCount;
     private int placeCount;
 
-    public DistributionServer() throws Exception{
+    public DistributionServer() throws Exception {
         this.clientIpAdresses = new ArrayList<>();
         this.clients = new ArrayList<>();
 
         // Get registry and bind server
-            Registry registry = LocateRegistry.getRegistry(1099);
-            Server server = (Server) UnicastRemoteObject.exportObject(this, 0);
-            registry.bind("server", server);
+        Registry registry = LocateRegistry.getRegistry(1099);
+        Server server = (Server) UnicastRemoteObject.exportObject(this, 0);
+        registry.bind("server", server);
     }
 
     public static void main(String[] args) {
@@ -52,14 +52,14 @@ public class DistributionServer extends Thread implements Server {
         this.philliCount = philliCount;
     }
 
-    void initClients() throws Exception{
+    void initClients() throws Exception {
         System.out.println(clientIpAdresses);
-            for (String ipAdress : clientIpAdresses) {
-                System.out.println("Adding " + ipAdress);
-                Client client = (Client) Naming.lookup("rmi://" + ipAdress + "/client");
-                clients.add(client);
-                client.setClients(clientIpAdresses);
-            }
+        for (String ipAdress : clientIpAdresses) {
+            System.out.println("Adding " + ipAdress);
+            Client client = (Client) Naming.lookup("rmi://" + ipAdress + "/client");
+            clients.add(client);
+            client.setClients(clientIpAdresses);
+        }
         this.start();
     }
 
