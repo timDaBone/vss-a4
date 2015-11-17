@@ -68,11 +68,12 @@ public class DistributedClient extends Thread implements Client {
     public void setClients(List<String> clientIpAdresses) throws RemoteException {
         try {
             for (String ipAdress : clientIpAdresses) {
-                if (ipAdress != this.clientIpAdress) {
+                if (!ipAdress.equals(this.clientIpAdress)) {
                     clients.add((Client) Naming.lookup("rmi://" + ipAdress + "/client"));
                 }
 
             }
+            
             for (Client client : clients) {
                 client.hello(this.clientIpAdress);
             }
