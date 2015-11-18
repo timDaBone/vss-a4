@@ -86,7 +86,9 @@ public class DistributedClient implements Client {
 
     @Override
     public void stopClient() throws RemoteException {
-        philosoph.stopPhilosoph();
+        if(philosoph != null) {
+            philosoph.stopPhilosoph();
+        }
     }
 
 }

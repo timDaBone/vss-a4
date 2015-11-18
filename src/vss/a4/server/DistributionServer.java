@@ -110,14 +110,13 @@ public class DistributionServer extends Thread implements Server {
         System.out.println("EatingCounters: " + this.philosophEatingCounters);
         try {
 
-            stopClients();
-
             for (String ipAdress : clientIpAdresses) {
                 System.out.println("Adding " + ipAdress);
                 Client client = null;
                 try {
                     client = (Client) Naming.lookup("rmi://" + ipAdress + "/client");
                 } catch (RemoteException e) {
+                    e.printStackTrace();
                     clientIpAdresses.remove(ipAdress);
                     clients.clear();
                     initClients();
@@ -133,6 +132,7 @@ public class DistributionServer extends Thread implements Server {
                         clients.add(client);
                         client.setClients(clientIpAdresses);
                     } catch (Exception ex) {
+                        ex.printStackTrace();
                         initClients();
                         clients.clear();
                         return;
@@ -140,6 +140,8 @@ public class DistributionServer extends Thread implements Server {
 
                 }
             }
+
+            stopClients();
 
             // todo verteilung über die clients starten
             int index = 0;
@@ -155,11 +157,12 @@ public class DistributionServer extends Thread implements Server {
                 client.startClient();
             }
         } catch (Exception ex) {
+            ex.printStackTrace();
             initClients();
             clients.clear();
             return;
         }
-
+        System.out.println("MainSupervisor Started");
         mainSupervisor = new MainSupervisor(clients, this);
         mainSupervisor.start();
     }

@@ -18,12 +18,16 @@ import vss.a4.client.Client;
 public class MainSupervisor extends Thread {
     
     private final List<Integer> philosophEatingCounters;
-    private boolean shoudRun;
+    private boolean shoudRun = true;
     private final List<Client> clients;
     private final DistributionServer distributionServer;
 
     public MainSupervisor(List<Client> clients, DistributionServer distributionServer) {
+        System.out.println("MainSupervisor Created");
         this.philosophEatingCounters = new ArrayList<>();
+        for(int i=0; i<clients.size(); i++) {
+            philosophEatingCounters.add(0);
+        }
         this.clients = clients;
         this.distributionServer = distributionServer;
     }
@@ -48,7 +52,7 @@ public class MainSupervisor extends Thread {
                     ex.printStackTrace();
                     distributionServer.startClients();
                 }
-                
+                index++;
             }
             
             System.out.println("Supervisor Eatingcounter: " + philosophEatingCounters);
