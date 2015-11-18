@@ -81,13 +81,14 @@ public class DistributedClient implements Client {
     @Override
     public void startClient() throws RemoteException {
         philosoph.start();
-        System.out.println("Philo started...");
+        System.out.println("Philo started");
     }
 
     @Override
     public void stopClient() throws RemoteException {
         if(philosoph != null) {
             philosoph.stopPhilosoph();
+            System.out.println("Philo stopped");
         }
     }
 

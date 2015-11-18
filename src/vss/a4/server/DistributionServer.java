@@ -116,6 +116,7 @@ public class DistributionServer extends Thread implements Server {
                 try {
                     client = (Client) Naming.lookup("rmi://" + ipAdress + "/client");
                 } catch (RemoteException e) {
+                    System.out.println("wie erwartet");
                     e.printStackTrace();
                     clientIpAdresses.remove(ipAdress);
                     clients.clear();
@@ -123,8 +124,10 @@ public class DistributionServer extends Thread implements Server {
                     return;
                 } catch (NotBoundException ex) {
                     ex.printStackTrace();
+                    System.out.println("nicht erwartet");
                 } catch (MalformedURLException ex) {
                     ex.printStackTrace();
+                    System.out.println("nicht erwartet 2");
                 }
 
                 if (client != null) {
@@ -133,6 +136,7 @@ public class DistributionServer extends Thread implements Server {
                         client.setClients(clientIpAdresses);
                     } catch (Exception ex) {
                         ex.printStackTrace();
+                        clientIpAdresses.remove(ipAdress);
                         initClients();
                         clients.clear();
                         return;
