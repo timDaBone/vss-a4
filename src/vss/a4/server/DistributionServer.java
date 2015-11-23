@@ -137,8 +137,8 @@ public class DistributionServer extends Thread implements Server {
                     } catch (Exception ex) {
                         ex.printStackTrace();
                         clientIpAdresses.remove(ipAdress);
-                        initClients();
                         clients.clear();
+                        initClients();
                         return;
                     }
 
@@ -162,8 +162,8 @@ public class DistributionServer extends Thread implements Server {
             }
         } catch (Exception ex) {
             ex.printStackTrace();
-            initClients();
             clients.clear();
+            initClients();
             return;
         }
         System.out.println("MainSupervisor Started");
