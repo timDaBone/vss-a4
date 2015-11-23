@@ -5,7 +5,9 @@
  */
 package vss.a4.server;
 
+import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -16,7 +18,7 @@ import vss.a4.client.Client;
  * @author tboeh
  */
 public class MainSupervisor extends Thread {
-    
+
     private final List<Integer> philosophEatingCounters;
     private boolean shoudRun = true;
     private final List<Client> clients;
@@ -25,7 +27,7 @@ public class MainSupervisor extends Thread {
     public MainSupervisor(List<Client> clients, DistributionServer distributionServer) {
         System.out.println("MainSupervisor Created");
         this.philosophEatingCounters = new ArrayList<>();
-        for(int i=0; i<clients.size(); i++) {
+        for (int i = 0; i < clients.size(); i++) {
             philosophEatingCounters.add(0);
         }
         this.clients = clients;
@@ -34,7 +36,7 @@ public class MainSupervisor extends Thread {
 
     @Override
     public void run() {
-        while(shoudRun) {
+        while (shoudRun) {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException ex) {
@@ -43,20 +45,22 @@ public class MainSupervisor extends Thread {
             System.out.println("Get eating counters");
             // read out clients
             int index = 0;
-            for(Client client: clients) {
-                
-                try {
+            try {
+                for (Client client : clients) {
                     philosophEatingCounters.set(index, client.getPhiloCount());
-                } catch (Exception ex) {
-                    
-                    ex.printStackTrace();
-                    distributionServer.startClients();
+                    index++;
                 }
-                index++;
+            } catch (ConcurrentModificationException ex) {
+                System.out.println(clients);
+                ex.printStackTrace();
+            } catch (RemoteException ex) {
+                ex.printStackTrace();
+                distributionServer.startClients();
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
-            
             System.out.println("Supervisor Eatingcounter: " + philosophEatingCounters);
-            
+
         }
     }
 
@@ -67,9 +71,5 @@ public class MainSupervisor extends Thread {
     List<Integer> getEatingCounters() {
         return this.philosophEatingCounters;
     }
-    
-    
-    
-    
-    
+
 }

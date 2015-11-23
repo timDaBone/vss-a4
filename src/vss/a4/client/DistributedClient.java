@@ -5,6 +5,7 @@
  */
 package vss.a4.client;
 
+import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.rmi.AccessException;
 import java.rmi.AlreadyBoundException;
@@ -18,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import vss.a4.exceptions.VssException;
 import vss.a4.server.DistributionServer;
 import vss.a4.server.Server;
 
@@ -61,7 +63,11 @@ public class DistributedClient implements Client {
     public void setClients(List<String> clientIpAdresses) throws Exception {
         for (String ipAdress : clientIpAdresses) {
             if (!ipAdress.equals(this.clientIpAdress)) {
-                clients.add((Client) Naming.lookup("rmi://" + ipAdress + "/client"));
+                try {
+                    clients.add((Client) Naming.lookup("rmi://" + ipAdress + "/client"));
+                } catch(RemoteException ex) {
+                    throw new VssException(ipAdress, ex.getMessage());
+                }
             }
         }
     }

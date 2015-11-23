@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 import test.vss.a4.server.Test2;
 import test.vss.a4.server.Test2Impl;
 import vss.a4.client.Client;
+import vss.a4.exceptions.VssException;
 
 /**
  *
@@ -133,18 +134,21 @@ public class DistributionServer extends Thread implements Server {
                     ex.printStackTrace();
                     System.out.println("nicht erwartet 2");
                 }
-
+                
+                System.out.println("Working on ipAdress " + ipAdress);
+                System.out.println("Working on Client " + client);
                 if (client != null) {
                     try {
                         clients.add(client);
                         client.setClients(clientIpAdresses);
-                    } catch (Exception ex) {
+                    } catch(VssException ex) {
                         ex.printStackTrace();
-                        clientIpAdresses.remove(ipAdress);
+                        clientIpAdresses.remove(ex.getIpAdress());
                         clients.clear();
                         initClients();
                         return;
                     }
+                    
 
                 }
             }
