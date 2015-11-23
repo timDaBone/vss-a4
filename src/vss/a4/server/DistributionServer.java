@@ -141,6 +141,12 @@ public class DistributionServer extends Thread implements Server {
                     try {
                         clients.add(client);
                         client.setClients(clientIpAdresses);
+                    } catch(RemoteException ex) {
+                        ex.printStackTrace();
+                        clientIpAdresses.remove(ipAdress);
+                        clients.clear();
+                        initClients();
+                        return;
                     } catch(VssException ex) {
                         ex.printStackTrace();
                         clientIpAdresses.remove(ex.getIpAdress());

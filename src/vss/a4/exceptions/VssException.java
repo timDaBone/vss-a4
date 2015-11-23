@@ -14,7 +14,7 @@ public class VssException extends Exception {
     private String ipAdress;
 
     public VssException(String ipAdress, String message) {
-        super("Andi"+message);
+        super(message);
         this.ipAdress = ipAdress;
     }
 
