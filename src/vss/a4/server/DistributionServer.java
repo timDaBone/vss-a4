@@ -37,20 +37,6 @@ public class DistributionServer extends Thread implements Server {
         System.out.println("response: " + System.getProperty("sun.rmi.transport.tcp.responseTimeout"));
         System.out.println("connection: " + System.getProperty("sun.rmi.transport.connectionTimeout"));
         
-        System.setProperty("sun.rmi.log.debug", "true");
-        System.setProperty("sun.rmi.activation.execTimeout", "1000");
-        System.setProperty("sun.rmi.activation.groupTimeout", "1000");
-        System.setProperty("sun.rmi.dgc.ackTimeout", "1000");
-        System.setProperty("sun.rmi.transport.tcp.readTimeout", "1000");
-        System.setProperty("sun.rmi.transport.connectionTimeout", "1000");
-        System.setProperty("sun.rmi.transport.tcp.responseTimeout","1000");
-        System.out.println(System.getProperty("sun.rmi.log.debug"));
-        System.out.println(System.getProperty("sun.rmi.activation.execTimeout"));
-        System.out.println(System.getProperty("sun.rmi.activation.groupTimeout"));
-        System.out.println(System.getProperty("sun.rmi.dgc.ackTimeout"));
-        System.out.println(System.getProperty("sun.rmi.transport.tcp.readTimeout"));
-        System.out.println(System.getProperty("sun.rmi.transport.connectionTimeout"));
-        System.out.println(System.getProperty("sun.rmi.transport.tcp.responseTimeout"));
 
         // Get registry and bind server
         Registry registry = LocateRegistry.getRegistry(1099);

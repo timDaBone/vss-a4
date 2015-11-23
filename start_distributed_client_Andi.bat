@@ -1,2 +1,2 @@
 cd "build\classes\"
-java -Djava.security.policy=file:/server.policy -Dsun.rmi.transport.connectionTimeout=1000 -Dsun.rmi.transport.tcp.responseTimeout=1000 vss.a4.client.DistributedClient 192.168.1.66 192.168.1.66 1099
+java -Djava.security.policy=file:/server.policy vss.a4.client.DistributedClient 192.168.1.66 192.168.1.66 1099
