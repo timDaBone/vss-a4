@@ -60,14 +60,16 @@ public class DistributedClient implements Client {
     }
 
     @Override
-    public void setClients(List<String> clientIpAdresses) throws Exception {
+    public void setClients(List<String> clientIpAdresses) throws VssException {
         for (String ipAdress : clientIpAdresses) {
             if (!ipAdress.equals(this.clientIpAdress)) {
                 try {
                     clients.add((Client) Naming.lookup("rmi://" + ipAdress + "/client"));
                 } catch(RemoteException ex) {
                     throw new VssException(ipAdress, ex.getMessage());
-                }
+                } catch(Exception ex) {
+                    ex.printStackTrace();
+                } 
             }
         }
     }

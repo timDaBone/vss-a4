@@ -8,14 +8,14 @@ package vss.a4.client;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
+import vss.a4.exceptions.VssException;
 
 /**
  *
  * @author abuch_000
  */
 public interface Client extends Remote {
-
-    public void setClients(List<String> clientIpAdresses) throws Exception;
+    public void setClients(List<String> clientIpAdresses) throws VssException;
     public void init(int i, int places) throws Exception;
     public void startClient() throws RemoteException;
     public void stopClient() throws RemoteException;
