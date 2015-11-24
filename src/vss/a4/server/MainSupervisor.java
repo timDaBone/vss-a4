@@ -25,7 +25,7 @@ public class MainSupervisor extends Thread {
     private final DistributionServer distributionServer;
 
     public MainSupervisor(List<Client> clients, DistributionServer distributionServer) {
-        System.out.println("MainSupervisor Created");
+        DistributionServer.logging("MainSupervisor Created");
         this.philosophEatingCounters = new ArrayList<>();
         for (int i = 0; i < clients.size(); i++) {
             philosophEatingCounters.add(0);
@@ -41,8 +41,8 @@ public class MainSupervisor extends Thread {
                 Thread.sleep(1000);
             } catch (InterruptedException ex) {
                 ex.printStackTrace();
-            }
-            System.out.println("Get eating counters");
+            }        
+            DistributionServer.logging("MainSupervisor get eating counters from Clients");
             // read out clients
             int index = 0;
             try {
@@ -51,20 +51,19 @@ public class MainSupervisor extends Thread {
                     index++;
                 }
             } catch (ConcurrentModificationException ex) {
-                System.out.println(clients);
-                ex.printStackTrace();
+                DistributionServer.logging("MainSupervisor gets ModificationException with List " + clients, ex);
             } catch (RemoteException ex) {
-                ex.printStackTrace();
+                DistributionServer.logging("MainSupervisor has Connection Problem with Client", ex);
                 distributionServer.startClients();
             } catch (Exception ex) {
-                ex.printStackTrace();
+                DistributionServer.logging("MainSupervisor has ConnectionProbblem with Client", ex);
             }
-            System.out.println("Supervisor Eatingcounter: " + philosophEatingCounters);
-
+            DistributionServer.logging("EatingCounters on MainSupervisor " + this.philosophEatingCounters, null);
         }
     }
 
     void stopMainSupervisor() {
+        DistributionServer.logging("MainSupervisor Stopped", null);
         this.shoudRun = false;
     }
 

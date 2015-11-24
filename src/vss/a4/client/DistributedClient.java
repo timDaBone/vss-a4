@@ -5,6 +5,8 @@
  */
 package vss.a4.client;
 
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.rmi.AccessException;
@@ -18,6 +20,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
+import java.util.logging.LogManager;
 import java.util.logging.Logger;
 import vss.a4.exceptions.VssException;
 import vss.a4.server.DistributionServer;
@@ -40,7 +43,6 @@ public class DistributedClient implements Client {
         this.clientIpAdress = clientIpAdress;
         this.clients = new ArrayList<>();
         
-
         // Setup RMI to server
         this.server = (Server) Naming.lookup("rmi://" + serverIpAdress + "/server");
 
@@ -53,10 +55,9 @@ public class DistributedClient implements Client {
     public static void main(String[] args) {
         try {
             DistributedClient distributedClient = new DistributedClient(args[0], args[1], Integer.parseInt(args[2]));
-            distributedClient.server.addClient(distributedClient.clientIpAdress);
-            
+            distributedClient.server.addClient(distributedClient.clientIpAdress);    
         } catch (Exception ex) {
-            ex.printStackTrace();
+            DistributionServer.logging("Client Registry Error or Server not available", ex);
         }
     }
 
@@ -67,9 +68,10 @@ public class DistributedClient implements Client {
                 try {
                     clients.add((Client) Naming.lookup("rmi://" + ipAdress + "/client"));
                 } catch(RemoteException ex) {
+                    DistributionServer.logging("VSSException was thrown from " + ipAdress, ex);
                     throw new VssException(ipAdress, ex.getMessage());
                 } catch(Exception ex) {
-                    ex.printStackTrace();
+                    DistributionServer.logging("Exception was thrown from " + ipAdress, ex);
                 } 
             }
         }
@@ -78,6 +80,7 @@ public class DistributedClient implements Client {
     @Override
     public void init(int i, int places) throws Exception {
         this.philosoph = new Philosoph(i);
+        DistributionServer.logging("Philosoph " + this + " initialized", null);
     }
 
     @Override
@@ -85,21 +88,28 @@ public class DistributedClient implements Client {
         if (philosoph != null) {
             return philosoph.getCounter();
         }
-        throw new Exception("Philosoph is null.");
+        Exception ex = new Exception("Philosop " + this + " is NULL");
+        DistributionServer.logging("FATAL ERROR", ex);
+        throw ex;
     }
 
     @Override
     public void startClient() throws RemoteException {
         philosoph.start();
-        System.out.println("Philo started");
+        DistributionServer.logging("Philosoph " + this + " started");
     }
 
     @Override
     public void stopClient() throws RemoteException {
         if(philosoph != null) {
             philosoph.stopPhilosoph();
-            System.out.println("Philo stopped");
+            DistributionServer.logging("Philosoph " + this + " stopped");
         }
+    }
+    
+    @Override
+    public String toString() {
+        return "Client (" + clientIpAdress + ")";
     }
 
 }

@@ -16,6 +16,8 @@ import vss.a4.exceptions.VssException;
  */
 public class DistributionServer implements Server {
 
+    private static boolean DEBUG;
+    
     List<String> clientIpAdresses;
     List<Client> clients;
     private int philliCount;
@@ -23,10 +25,11 @@ public class DistributionServer implements Server {
     private MainSupervisor mainSupervisor;
     List<Integer> philosophEatingCounters;
 
-    public DistributionServer() throws Exception {
+    public DistributionServer(boolean debug) throws Exception {
         this.clientIpAdresses = new ArrayList<>();
         this.clients = new ArrayList<>();
         this.mainSupervisor = null;
+        this.DEBUG = debug;
 
         // Get registry and bind server
         Registry registry = LocateRegistry.getRegistry(1099);
@@ -36,7 +39,7 @@ public class DistributionServer implements Server {
 
     public static void main(String[] args) {
         try {
-            DistributionServer server = new DistributionServer();
+            DistributionServer server = new DistributionServer(Boolean.parseBoolean(args[0]));
             UserInterface userInterface = new UserInterface(server);
             userInterface.start();
         } catch (Exception ex) {
@@ -44,7 +47,7 @@ public class DistributionServer implements Server {
         }
     }
 
-    void initServer(int placeCount, int philliCount, boolean firstInit) throws Exception {
+    void initServer(int placeCount, int philliCount, boolean firstInit) {
         this.placeCount = placeCount;
         this.philliCount = philliCount;
         if (firstInit) {
@@ -69,7 +72,7 @@ public class DistributionServer implements Server {
 
     public void startClients() {
         // todo methodenname ändern
-
+        DistributionServer.logging("startClients()");
         //Supervisor auslesen
         if (mainSupervisor != null) {
             int supervisorCounterSize = mainSupervisor.getEatingCounters().size();
@@ -88,17 +91,20 @@ public class DistributionServer implements Server {
     }
 
     private void stopClients() throws RemoteException {
+        DistributionServer.logging("stopClients()");
         for (Client client : clients) {
             client.stopClient();
         }
     }
 
     void initClients() {
-        System.out.println(clientIpAdresses);
-        System.out.println("EatingCounters: " + this.philosophEatingCounters);
-
+        DistributionServer.logging("initClients()");
+        DistributionServer.logging("Client IP-List " + clientIpAdresses);
+        DistributionServer.logging("Client List " + clients);
+        DistributionServer.logging("EatingCounters on Server " + this.philosophEatingCounters);
+        
         for (String ipAdress : clientIpAdresses) {
-            System.out.println("Adding " + ipAdress);
+            DistributionServer.logging("Adding IP " + ipAdress, null);
             Client client = null;
             try {
                 client = (Client) Naming.lookup("rmi://" + ipAdress + "/client");
@@ -107,20 +113,22 @@ public class DistributionServer implements Server {
                 initClients();
                 return;
             } catch (Exception ex) {
-                ex.printStackTrace();
+                DistributionServer.logging("Naming.lookup to Client " + ipAdress + " throws Exception", ex);
             }
 
-            System.out.println("Working on ipAdress " + ipAdress);
-            System.out.println("Working on Client " + client);
+            DistributionServer.logging("Working on ipAdress " + ipAdress, null);
+            DistributionServer.logging("Working on ipAdress " + client, null);
             if (client != null) {
                 try {
                     clients.add(client);
                     client.setClients(clientIpAdresses);
                 } catch (RemoteException ex) {
+                    DistributionServer.logging("Client" + ipAdress + " is not available anymore.");
                     cleanIpsAndClients(ex, ipAdress);
                     initClients();
                     return;
                 } catch (VssException ex) {
+                    DistributionServer.logging("Client" + ex.getIpAdress() + " is not available anymore.");
                     cleanIpsAndClients(ex, ex.getIpAdress());
                     initClients();
                     return;
@@ -148,20 +156,34 @@ public class DistributionServer implements Server {
             initClients();
             return;
         }
-        System.out.println("MainSupervisor Started");
         mainSupervisor = new MainSupervisor(clients, this);
         mainSupervisor.start();
     }
 
-    private void cleanIpsAndClients(Exception e, String ipAdress) {
-        e.printStackTrace();
+    private void cleanIpsAndClients(Exception ex, String ipAdress) {
+        DistributionServer.logging("cleanIpsAndClients()", ex);
+        DistributionServer.logging("cleanIpsAndClients() removing " + ipAdress + " from IP-List", null);
         clientIpAdresses.remove(ipAdress);
+        DistributionServer.logging("cleanIpsAndClients() clear Client List", null);
         clients.clear();
     }
 
     public void addClient(String ipAdress) {
         this.clientIpAdresses.add(ipAdress);
         startClients();
+    }
+    
+    public static void logging(String message) {
+        System.out.println(message);
+    }
+    
+    public static void logging(String message, Exception ex) {
+        if(DEBUG && ex == null)
+            System.out.println(message);
+        if(DEBUG && ex != null) {
+            System.out.println(message);
+            ex.printStackTrace();
+        }
     }
 
 }

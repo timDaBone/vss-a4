@@ -5,6 +5,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import vss.a4.client.DistributedClient;
 
 /**
  *
@@ -34,7 +35,7 @@ public class UserInterface extends Thread {
             server.initServer(placeCount, philliCount, firstInit);
             firstInit = false;
         } catch (Exception e) {
-            e.printStackTrace();
+            DistributionServer.logging("IOException in UserInterface", e);
         }
     }
 

@@ -5,6 +5,8 @@
  */
 package vss.a4.client;
 
+import vss.a4.server.DistributionServer;
+
 /**
  *
  * @author tboeh
@@ -19,8 +21,6 @@ public class Philosoph extends Thread {
         this.counter = counter;
         this.shouldRun = true;
     }
-    
-    
 
     public int getCounter() {
         return counter;
@@ -32,15 +32,15 @@ public class Philosoph extends Thread {
             this.counter++;
             try {
                 Thread.sleep(1000);
-        System.out.println("Philosoph " + this + " eating");
+                DistributionServer.logging("Philosoph " + this + " eating");
             } catch (InterruptedException ex) {
-                ex.printStackTrace();
+                DistributionServer.logging("Philosoph interrupted", ex);
             }
         }
     }
 
     void stopPhilosoph() {
-        System.out.println("Philosoph " + this + " stopped");
+        DistributionServer.logging("Philosoph " + this + " stopped", null);
         shouldRun = false;
     }
 }
