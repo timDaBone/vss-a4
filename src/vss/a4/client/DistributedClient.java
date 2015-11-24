@@ -42,7 +42,7 @@ public class DistributedClient implements Client {
         this.serverIpAdress = serverIpAdress;
         this.clientIpAdress = clientIpAdress;
         this.clients = new ArrayList<>();
-        
+
         // Setup RMI to server
         this.server = (Server) Naming.lookup("rmi://" + serverIpAdress + "/server");
 
@@ -55,7 +55,7 @@ public class DistributedClient implements Client {
     public static void main(String[] args) {
         try {
             DistributedClient distributedClient = new DistributedClient(args[0], args[1], Integer.parseInt(args[2]));
-            distributedClient.server.addClient(distributedClient.clientIpAdress);    
+            distributedClient.server.addClient(distributedClient.clientIpAdress);
         } catch (Exception ex) {
             DistributionServer.logging("Client Registry Error or Server not available", ex);
         }
@@ -67,19 +67,19 @@ public class DistributedClient implements Client {
             if (!ipAdress.equals(this.clientIpAdress)) {
                 try {
                     clients.add((Client) Naming.lookup("rmi://" + ipAdress + "/client"));
-                } catch(RemoteException ex) {
+                } catch (RemoteException ex) {
                     DistributionServer.logging("VSSException was thrown from " + ipAdress, ex);
                     throw new VssException(ipAdress, ex.getMessage());
-                } catch(Exception ex) {
+                } catch (Exception ex) {
                     DistributionServer.logging("Exception was thrown from " + ipAdress, ex);
-                } 
+                }
             }
         }
     }
 
     @Override
     public void init(int firstPhilosoph, int lastPhilosoph, List<Integer> eatingCounters, int firstPlace, int lastPlace) throws Exception {
-        this.philosoph = new Philosoph(firstPlace);
+
         DistributionServer.logging("Philosoph " + this + " initialized", null);
     }
 
@@ -95,18 +95,22 @@ public class DistributedClient implements Client {
 
     @Override
     public void startClient() throws RemoteException {
-        philosoph.start();
+        synchronized (this) {
+            this.philosoph = new Philosoph(1);
+            philosoph.start();
+        }
+
         DistributionServer.logging("Philosoph " + this + " started");
     }
 
     @Override
     public void stopClient() throws RemoteException {
-        if(philosoph != null) {
+        if (philosoph != null) {
             philosoph.stopPhilosoph();
             DistributionServer.logging("Philosoph " + this + " stopped");
         }
     }
-    
+
     @Override
     public String toString() {
         return "Client (" + clientIpAdress + ")";
