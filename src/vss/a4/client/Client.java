@@ -16,7 +16,7 @@ import vss.a4.exceptions.VssException;
  */
 public interface Client extends Remote {
     public void setClients(List<String> clientIpAdresses) throws VssException, RemoteException;
-    public void init(int i, int places) throws Exception;
+    public void init(int firstPhilosoph, int lastPhilosoph, List<Integer> eatingCounters, int firstPlace, int lastPlace) throws Exception;
     public void startClient() throws RemoteException;
     public void stopClient() throws RemoteException;
     public int getPhiloCount() throws Exception;

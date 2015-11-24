@@ -24,13 +24,13 @@ public class MainSupervisor extends Thread {
     private final List<Client> clients;
     private final DistributionServer distributionServer;
 
-    public MainSupervisor(List<Client> clients, DistributionServer distributionServer) {
+    public MainSupervisor(DistributionServer distributionServer) {
         DistributionServer.logging("MainSupervisor Created");
+        this.clients = new ArrayList<>();
         this.philosophEatingCounters = new ArrayList<>();
         for (int i = 0; i < clients.size(); i++) {
             philosophEatingCounters.add(0);
         }
-        this.clients = clients;
         this.distributionServer = distributionServer;
     }
 
@@ -54,7 +54,7 @@ public class MainSupervisor extends Thread {
                 DistributionServer.logging("MainSupervisor gets ModificationException with List " + clients, ex);
             } catch (RemoteException ex) {
                 DistributionServer.logging("MainSupervisor has Connection Problem with Client", ex);
-                distributionServer.startClients();
+                distributionServer.initClients();
             } catch (Exception ex) {
                 DistributionServer.logging("MainSupervisor has ConnectionProbblem with Client", ex);
             }

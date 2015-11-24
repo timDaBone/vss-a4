@@ -30,6 +30,8 @@ public class DistributionServer implements Server {
         this.clients = new ArrayList<>();
         this.mainSupervisor = null;
         this.DEBUG = debug;
+        this.mainSupervisor = new MainSupervisor(this);
+        this.mainSupervisor.start();
 
         // Get registry and bind server
         Registry registry = LocateRegistry.getRegistry(1099);
@@ -50,43 +52,6 @@ public class DistributionServer implements Server {
     void initServer(int placeCount, int philliCount, boolean firstInit) {
         this.placeCount = placeCount;
         this.philliCount = philliCount;
-        if (firstInit) {
-            philosophEatingCounters = new ArrayList<>();
-            for (int index = 0; index < philliCount; index++) {
-                philosophEatingCounters.add(0);
-            }
-        } else {
-            int difference = philliCount - philosophEatingCounters.size();
-            if (difference >= 0) {
-                for (int index = 0; index < difference; index++) {
-                    philosophEatingCounters.add(0);
-                }
-            } else {
-                int size = philosophEatingCounters.size();
-                for (int index = -1; index >= difference; index--) {
-                    philosophEatingCounters.remove(index % size);
-                }
-            }
-        }
-    }
-
-    public void startClients() {
-        // todo methodenname ändern
-        DistributionServer.logging("startClients()");
-        //Supervisor auslesen
-        if (mainSupervisor != null) {
-            int supervisorCounterSize = mainSupervisor.getEatingCounters().size();
-            for (int index = 0; index < supervisorCounterSize; index++) {
-                if (index < philosophEatingCounters.size()) {
-                    philosophEatingCounters.set(index, mainSupervisor.getEatingCounters().get(index));
-                }
-            }
-            //Clients stoppen, initClients TODO
-            if (mainSupervisor.isAlive()) {
-                mainSupervisor.stopMainSupervisor();
-            }
-
-        }
         initClients();
     }
 
@@ -143,7 +108,7 @@ public class DistributionServer implements Server {
             int index = 0;
             for (Client client : clients) {
                 // Schleife ändern, wenn philosophen eingeführt werden TODO
-                client.init(philosophEatingCounters.get(index), 0);
+                client.init(0, 0, new ArrayList<Integer>(), 0 , 0);
                 index++;
             }
 
@@ -156,8 +121,7 @@ public class DistributionServer implements Server {
             initClients();
             return;
         }
-        mainSupervisor = new MainSupervisor(clients, this);
-        mainSupervisor.start();
+        //  set new mainsupervisor clients and SYNCHRONIZIED TODO
     }
 
     private void cleanIpsAndClients(Exception ex, String ipAdress) {
@@ -170,7 +134,7 @@ public class DistributionServer implements Server {
 
     public void addClient(String ipAdress) {
         this.clientIpAdresses.add(ipAdress);
-        startClients();
+        initClients();
     }
     
     public static void logging(String message) {

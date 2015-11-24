@@ -78,8 +78,8 @@ public class DistributedClient implements Client {
     }
 
     @Override
-    public void init(int i, int places) throws Exception {
-        this.philosoph = new Philosoph(i);
+    public void init(int firstPhilosoph, int lastPhilosoph, List<Integer> eatingCounters, int firstPlace, int lastPlace) throws Exception {
+        this.philosoph = new Philosoph(firstPlace);
         DistributionServer.logging("Philosoph " + this + " initialized", null);
     }
 
