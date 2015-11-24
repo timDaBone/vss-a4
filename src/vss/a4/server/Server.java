@@ -15,6 +15,5 @@ import java.rmi.RemoteException;
 public interface Server extends Remote {
 
     public void addClient(String ipAdress) throws RemoteException;
-    public void reportError() throws RemoteException;
 
 }

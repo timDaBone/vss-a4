@@ -1,19 +1,12 @@
 package vss.a4.server;
 
-import java.net.MalformedURLException;
-import java.rmi.AlreadyBoundException;
 import java.rmi.Naming;
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import test.vss.a4.server.Test2;
-import test.vss.a4.server.Test2Impl;
 import vss.a4.client.Client;
 import vss.a4.exceptions.VssException;
 
@@ -21,7 +14,7 @@ import vss.a4.exceptions.VssException;
  *
  * @author abuch_000
  */
-public class DistributionServer extends Thread implements Server {
+public class DistributionServer implements Server {
 
     List<String> clientIpAdresses;
     List<Client> clients;
@@ -34,10 +27,6 @@ public class DistributionServer extends Thread implements Server {
         this.clientIpAdresses = new ArrayList<>();
         this.clients = new ArrayList<>();
         this.mainSupervisor = null;
-        
-        System.out.println("response: " + System.getProperty("sun.rmi.transport.tcp.responseTimeout"));
-        System.out.println("connection: " + System.getProperty("sun.rmi.transport.connectionTimeout"));
-        
 
         // Get registry and bind server
         Registry registry = LocateRegistry.getRegistry(1099);
@@ -76,9 +65,6 @@ public class DistributionServer extends Thread implements Server {
                 }
             }
         }
-
-        startClients();
-
     }
 
     public void startClients() {
@@ -90,18 +76,15 @@ public class DistributionServer extends Thread implements Server {
             for (int index = 0; index < supervisorCounterSize; index++) {
                 if (index < philosophEatingCounters.size()) {
                     philosophEatingCounters.set(index, mainSupervisor.getEatingCounters().get(index));
-
                 }
             }
             //Clients stoppen, initClients TODO
             if (mainSupervisor.isAlive()) {
-
                 mainSupervisor.stopMainSupervisor();
             }
 
         }
         initClients();
-
     }
 
     private void stopClients() throws RemoteException {
@@ -113,65 +96,50 @@ public class DistributionServer extends Thread implements Server {
     void initClients() {
         System.out.println(clientIpAdresses);
         System.out.println("EatingCounters: " + this.philosophEatingCounters);
-        try {
 
-            for (String ipAdress : clientIpAdresses) {
-                System.out.println("Adding " + ipAdress);
-                Client client = null;
-                try {
-                    client = (Client) Naming.lookup("rmi://" + ipAdress + "/client");
-                } catch (RemoteException e) {
-                    System.out.println("wie erwartet");
-                    e.printStackTrace();
-                    clientIpAdresses.remove(ipAdress);
-                    clients.clear();
-                    initClients();
-                    return;
-                } catch (NotBoundException ex) {
-                    ex.printStackTrace();
-                    System.out.println("nicht erwartet");
-                } catch (MalformedURLException ex) {
-                    ex.printStackTrace();
-                    System.out.println("nicht erwartet 2");
-                }
-                
-                System.out.println("Working on ipAdress " + ipAdress);
-                System.out.println("Working on Client " + client);
-                if (client != null) {
-                    try {
-                        clients.add(client);
-                        client.setClients(clientIpAdresses);
-                    } catch(RemoteException ex) {
-                        ex.printStackTrace();
-                        clientIpAdresses.remove(ipAdress);
-                        clients.clear();
-                        initClients();
-                        return;
-                    } catch(VssException ex) {
-                        ex.printStackTrace();
-                        clientIpAdresses.remove(ex.getIpAdress());
-                        clients.clear();
-                        initClients();
-                        return;
-                    }
-                    
-
-                }
+        for (String ipAdress : clientIpAdresses) {
+            System.out.println("Adding " + ipAdress);
+            Client client = null;
+            try {
+                client = (Client) Naming.lookup("rmi://" + ipAdress + "/client");
+            } catch (RemoteException ex) {
+                cleanIpsAndClients(ex, ipAdress);
+                initClients();
+                return;
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
 
+            System.out.println("Working on ipAdress " + ipAdress);
+            System.out.println("Working on Client " + client);
+            if (client != null) {
+                try {
+                    clients.add(client);
+                    client.setClients(clientIpAdresses);
+                } catch (RemoteException ex) {
+                    cleanIpsAndClients(ex, ipAdress);
+                    initClients();
+                    return;
+                } catch (VssException ex) {
+                    cleanIpsAndClients(ex, ex.getIpAdress());
+                    initClients();
+                    return;
+                }
+            }
+        }
+
+        try {
             stopClients();
 
             // todo verteilung über die clients starten
             int index = 0;
             for (Client client : clients) {
-
                 // Schleife ändern, wenn philosophen eingeführt werden TODO
                 client.init(philosophEatingCounters.get(index), 0);
                 index++;
             }
 
             for (Client client : clients) {
-
                 client.startClient();
             }
         } catch (Exception ex) {
@@ -185,18 +153,15 @@ public class DistributionServer extends Thread implements Server {
         mainSupervisor.start();
     }
 
-    @Override
-    public void run() {
-
+    private void cleanIpsAndClients(Exception e, String ipAdress) {
+        e.printStackTrace();
+        clientIpAdresses.remove(ipAdress);
+        clients.clear();
     }
 
     public void addClient(String ipAdress) {
         this.clientIpAdresses.add(ipAdress);
-    }
-
-    @Override
-    public void reportError() throws RemoteException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        startClients();
     }
 
 }

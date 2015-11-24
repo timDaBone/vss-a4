@@ -54,6 +54,7 @@ public class DistributedClient implements Client {
         try {
             DistributedClient distributedClient = new DistributedClient(args[0], args[1], Integer.parseInt(args[2]));
             distributedClient.server.addClient(distributedClient.clientIpAdress);
+            
         } catch (Exception ex) {
             ex.printStackTrace();
         }
