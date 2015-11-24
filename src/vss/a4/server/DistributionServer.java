@@ -64,6 +64,9 @@ public class DistributionServer implements Server {
     }
 
     void initClients() {
+        if(mainSupervisor != null) {
+            mainSupervisor.stopMainSupervisor();
+        }
         DistributionServer.logging("initClients()");
         DistributionServer.logging("Client IP-List " + clientIpAdresses);
         //DistributionServer.logging("Client List " + clients);
@@ -122,7 +125,9 @@ public class DistributionServer implements Server {
             initClients();
             return;
         }
+        mainSupervisor = new MainSupervisor(this);
         mainSupervisor.setClients(clients);
+        mainSupervisor.start();
     }
 
     private void cleanIpsAndClients(Exception ex, String ipAdress) {
