@@ -30,6 +30,7 @@ public class DistributionServer implements Server {
         this.clients = new ArrayList<>();
         this.mainSupervisor = null;
         this.DEBUG = debug;
+        DistributionServer.logging("DEBUGMODUS", null);
         this.mainSupervisor = new MainSupervisor(this);
         this.mainSupervisor.start();
 
@@ -65,7 +66,7 @@ public class DistributionServer implements Server {
     void initClients() {
         DistributionServer.logging("initClients()");
         DistributionServer.logging("Client IP-List " + clientIpAdresses);
-        DistributionServer.logging("Client List " + clients);
+        //DistributionServer.logging("Client List " + clients);
         DistributionServer.logging("EatingCounters on Server " + this.philosophEatingCounters);
 
         for (String ipAdress : clientIpAdresses) {
@@ -82,7 +83,7 @@ public class DistributionServer implements Server {
             }
 
             DistributionServer.logging("Working on ipAdress " + ipAdress, null);
-            DistributionServer.logging("Working on ipAdress " + client, null);
+            //DistributionServer.logging("Working on ipAdress " + client, null);
             if (client != null) {
                 try {
                     clients.add(client);

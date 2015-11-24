@@ -44,13 +44,10 @@ public class MainSupervisor extends Thread {
             }
 
             // read out clients
-            int index = 0;
             try {
                 synchronized (this) {
                     for (Client client : clients) {
-                        DistributionServer.logging("MainSupervisor get eating counter" + client.getPhiloCount() + "");
-                        philosophEatingCounters.set(index, client.getPhiloCount());
-                        index++;
+                        DistributionServer.logging("MainSupervisor get eating counter " + client.getPhiloCount());
                     }
                 }
 
