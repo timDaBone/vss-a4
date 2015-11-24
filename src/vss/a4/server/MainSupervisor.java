@@ -42,11 +42,12 @@ public class MainSupervisor extends Thread {
             } catch (InterruptedException ex) {
                 ex.printStackTrace();
             }        
-            DistributionServer.logging("MainSupervisor get eating counters from Clients");
+            
             // read out clients
             int index = 0;
             try {
                 for (Client client : clients) {
+                    DistributionServer.logging("MainSupervisor get eating counter" + client.getPhiloCount() + "");
                     philosophEatingCounters.set(index, client.getPhiloCount());
                     index++;
                 }
