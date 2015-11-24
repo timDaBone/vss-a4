@@ -17,7 +17,7 @@ import vss.a4.exceptions.VssException;
 public class DistributionServer implements Server {
 
     private static boolean DEBUG;
-    
+
     List<String> clientIpAdresses;
     List<Client> clients;
     private int philliCount;
@@ -67,7 +67,7 @@ public class DistributionServer implements Server {
         DistributionServer.logging("Client IP-List " + clientIpAdresses);
         DistributionServer.logging("Client List " + clients);
         DistributionServer.logging("EatingCounters on Server " + this.philosophEatingCounters);
-        
+
         for (String ipAdress : clientIpAdresses) {
             DistributionServer.logging("Adding IP " + ipAdress, null);
             Client client = null;
@@ -108,7 +108,7 @@ public class DistributionServer implements Server {
             int index = 0;
             for (Client client : clients) {
                 // Schleife ändern, wenn philosophen eingeführt werden TODO
-                client.init(0, 0, new ArrayList<Integer>(), 0 , 0);
+                client.init(0, 0, new ArrayList<Integer>(), 0, 0);
                 index++;
             }
 
@@ -121,7 +121,7 @@ public class DistributionServer implements Server {
             initClients();
             return;
         }
-        //  set new mainsupervisor clients and SYNCHRONIZIED TODO
+        mainSupervisor.setClients(clients);
     }
 
     private void cleanIpsAndClients(Exception ex, String ipAdress) {
@@ -136,15 +136,16 @@ public class DistributionServer implements Server {
         this.clientIpAdresses.add(ipAdress);
         initClients();
     }
-    
+
     public static void logging(String message) {
         System.out.println(message);
     }
-    
+
     public static void logging(String message, Exception ex) {
-        if(DEBUG && ex == null)
+        if (DEBUG && ex == null) {
             System.out.println(message);
-        if(DEBUG && ex != null) {
+        }
+        if (DEBUG && ex != null) {
             System.out.println(message);
             ex.printStackTrace();
         }

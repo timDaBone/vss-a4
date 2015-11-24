@@ -21,7 +21,7 @@ public class MainSupervisor extends Thread {
 
     private final List<Integer> philosophEatingCounters;
     private boolean shoudRun = true;
-    private final List<Client> clients;
+    private List<Client> clients;
     private final DistributionServer distributionServer;
 
     public MainSupervisor(DistributionServer distributionServer) {
@@ -41,16 +41,19 @@ public class MainSupervisor extends Thread {
                 Thread.sleep(1000);
             } catch (InterruptedException ex) {
                 ex.printStackTrace();
-            }        
-            
+            }
+
             // read out clients
             int index = 0;
             try {
-                for (Client client : clients) {
-                    DistributionServer.logging("MainSupervisor get eating counter" + client.getPhiloCount() + "");
-                    philosophEatingCounters.set(index, client.getPhiloCount());
-                    index++;
+                synchronized (this) {
+                    for (Client client : clients) {
+                        DistributionServer.logging("MainSupervisor get eating counter" + client.getPhiloCount() + "");
+                        philosophEatingCounters.set(index, client.getPhiloCount());
+                        index++;
+                    }
                 }
+
             } catch (ConcurrentModificationException ex) {
                 DistributionServer.logging("MainSupervisor gets ModificationException with List " + clients, ex);
             } catch (RemoteException ex) {
@@ -70,6 +73,13 @@ public class MainSupervisor extends Thread {
 
     List<Integer> getEatingCounters() {
         return this.philosophEatingCounters;
+    }
+
+    void setClients(List<Client> clients) {
+        synchronized (this) {
+            this.clients = clients;
+        }
+
     }
 
 }
