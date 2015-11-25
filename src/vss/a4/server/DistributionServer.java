@@ -1,6 +1,7 @@
 package vss.a4.server;
 
 import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -64,12 +65,15 @@ public class DistributionServer implements Server {
     }
 
     void initClients() {
+        
+        this.clients.clear();
+        
         if(mainSupervisor != null) {
             mainSupervisor.stopMainSupervisor();
         }
         DistributionServer.logging("initClients()");
         DistributionServer.logging("Client IP-List " + clientIpAdresses);
-        //DistributionServer.logging("Client List " + clients);
+        DistributionServer.logging("Client Listsize " + clients.size());
         DistributionServer.logging("EatingCounters on Server " + this.philosophEatingCounters);
 
         for (String ipAdress : clientIpAdresses) {
@@ -78,7 +82,11 @@ public class DistributionServer implements Server {
             try {
                 client = (Client) Naming.lookup("rmi://" + ipAdress + "/client");
             } catch (RemoteException ex) {
-                cleanIpsAndClients(ex, ipAdress);
+                removeFromIpAdressList(ex, ipAdress);
+                initClients();
+                return;
+            } catch (NotBoundException ex) {
+                removeFromIpAdressList(ex, ipAdress);
                 initClients();
                 return;
             } catch (Exception ex) {
@@ -93,12 +101,12 @@ public class DistributionServer implements Server {
                     client.setClients(clientIpAdresses);
                 } catch (RemoteException ex) {
                     DistributionServer.logging("Client" + ipAdress + " is not available anymore.");
-                    cleanIpsAndClients(ex, ipAdress);
+                    removeFromIpAdressList(ex, ipAdress);
                     initClients();
                     return;
                 } catch (VssException ex) {
                     DistributionServer.logging("Client" + ex.getIpAdress() + " is not available anymore.");
-                    cleanIpsAndClients(ex, ex.getIpAdress());
+                    removeFromIpAdressList(ex, ex.getIpAdress());
                     initClients();
                     return;
                 }
@@ -130,15 +138,14 @@ public class DistributionServer implements Server {
         mainSupervisor.start();
     }
 
-    private void cleanIpsAndClients(Exception ex, String ipAdress) {
+    private void removeFromIpAdressList(Exception ex, String ipAdress) {
         DistributionServer.logging("cleanIpsAndClients()", ex);
         DistributionServer.logging("cleanIpsAndClients() removing " + ipAdress + " from IP-List", null);
         clientIpAdresses.remove(ipAdress);
-        DistributionServer.logging("cleanIpsAndClients() clear Client List", null);
-        clients.clear();
     }
 
     public void addClient(String ipAdress) {
+        DistributionServer.logging("adding client " + ipAdress, null);
         this.clientIpAdresses.add(ipAdress);
         initClients();
     }
