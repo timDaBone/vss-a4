@@ -15,7 +15,7 @@ import vss.a4.exceptions.VssException;
  *
  * @author abuch_000
  */
-public class DistributionServer implements Server {
+public class DistributionServer implements Server{
 
     private static boolean DEBUG;
 
@@ -44,14 +44,14 @@ public class DistributionServer implements Server {
     public static void main(String[] args) {
         try {
             DistributionServer server = new DistributionServer(Boolean.parseBoolean(args[0]));
-            UserInterface userInterface = new UserInterface(server);
-            userInterface.start();
+            //UserInterface userInterface = new UserInterface(server);
+            //userInterface.start();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
-    void initServer(int placeCount, int philliCount, boolean firstInit) {
+    public void initServer(int placeCount, int philliCount, boolean firstInit) {
         this.placeCount = placeCount;
         this.philliCount = philliCount;
         initClients();
