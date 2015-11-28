@@ -5,23 +5,14 @@
  */
 package vss.a4.client;
 
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.io.StringWriter;
-import java.net.MalformedURLException;
-import java.rmi.AccessException;
 import java.rmi.AlreadyBoundException;
 import java.rmi.Naming;
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
-import java.util.logging.Logger;
 import vss.a4.exceptions.VssException;
 import vss.a4.server.DistributionServer;
 import vss.a4.server.Server;
@@ -36,7 +27,14 @@ public class DistributedClient implements Client {
     String clientIpAdress;
     Server server;
     private List<Client> clients;
+
     Philosoph philosoph;
+    int firstPhilosoph;
+    int lastPhilosoph;
+    List<Integer> eatingCounters;
+    int firstPlace;
+    int lastPlace;
+    
 
     public DistributedClient(String serverIpAdress, String clientIpAdress, int registryPort) throws Exception {
         this.serverIpAdress = serverIpAdress;
@@ -45,24 +43,43 @@ public class DistributedClient implements Client {
 
         // Setup RMI to server
         this.server = (Server) Naming.lookup("rmi://" + serverIpAdress + "/server");
-
+        
         // Initiate local RMI
         Registry registry = LocateRegistry.getRegistry(registryPort);
+             
+        String[] alreadyBindList = registry.list();
+        
+        boolean bind = true;
+        for(String alreadyBind: alreadyBindList) {
+            System.out.println(alreadyBind);
+            if(alreadyBind.equals("client"))
+                bind = false;
+        }
+        
         Client client = (Client) UnicastRemoteObject.exportObject(this, 0);
-        registry.bind("client", client);
+        
+        if(bind) {
+            registry.bind("client", client);
+        } else {
+            registry.rebind("client", client);
+        }
     }
 
     public static void main(String[] args) {
         try {
             DistributedClient distributedClient = new DistributedClient(args[0], args[1], Integer.parseInt(args[2]));
             distributedClient.server.addClient(distributedClient.clientIpAdress);
+            System.out.println("Client connected to Server");
         } catch (Exception ex) {
+            ex.printStackTrace();
             DistributionServer.logging("Client Registry Error or Server not available", ex);
         }
     }
 
     @Override
     public void setClients(List<String> clientIpAdresses) throws VssException {
+
+        // Cient behält nicht erreichbaren Client in Liste ?!?!
         for (String ipAdress : clientIpAdresses) {
             if (!ipAdress.equals(this.clientIpAdress)) {
                 try {
@@ -79,7 +96,10 @@ public class DistributedClient implements Client {
 
     @Override
     public void init(int firstPhilosoph, int lastPhilosoph, List<Integer> eatingCounters, int firstPlace, int lastPlace) throws Exception {
-
+        this.firstPhilosoph = firstPhilosoph;
+        this.lastPhilosoph = lastPhilosoph;
+        this.firstPlace = firstPlace;
+        this.lastPlace = lastPlace;
         DistributionServer.logging("Philosoph " + this + " initialized", null);
     }
 
