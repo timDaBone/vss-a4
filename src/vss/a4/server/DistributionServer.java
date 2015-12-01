@@ -17,7 +17,7 @@ import vss.a4.exceptions.VssException;
  *
  * @author abuch_000
  */
-public class DistributionServer implements Server{
+public class DistributionServer implements Server {
 
     private static boolean DEBUG;
 
@@ -65,20 +65,20 @@ public class DistributionServer implements Server{
     }
 
     void initClients() {
-        
+
         try {
-            
+
             this.clients.clear();
             stopClients();
-            
-            if(mainSupervisor != null) {
+
+            if (mainSupervisor != null) {
                 mainSupervisor.stopMainSupervisor();
             }
             DistributionServer.logging("initClients()");
             DistributionServer.logging("Client IP-List " + clientIpAdresses);
             DistributionServer.logging("Client Listsize " + clients.size());
             DistributionServer.logging("EatingCounters on Server " + this.philosophEatingCounters);
-            
+
             for (String ipAdress : clientIpAdresses) {
                 DistributionServer.logging("Adding IP " + ipAdress, null);
                 Client client = null;
@@ -95,7 +95,7 @@ public class DistributionServer implements Server{
                 } catch (Exception ex) {
                     DistributionServer.logging("Naming.lookup to Client " + ipAdress + " throws Exception", ex);
                 }
-                
+
                 DistributionServer.logging("Working on ipAdress " + ipAdress, null);
                 //DistributionServer.logging("Working on ipAdress " + client, null);
                 if (client != null) {
@@ -115,12 +115,12 @@ public class DistributionServer implements Server{
                     }
                 }
             }
-            
+
             try {
                 //stopClients();
-                
+
                 List<int[]> philosophsAndPlacesList = calculateDistribution();
-                
+
                 // todo verteilung über die clients starten
                 int clientNumber = 0;
                 for (Client client : clients) {
@@ -129,7 +129,7 @@ public class DistributionServer implements Server{
                     client.init(philosophsAndPlaces[0], philosophsAndPlaces[1], mainSupervisor.getEatingCounters(), philosophsAndPlaces[2], philosophsAndPlaces[3], placeCount);
                     clientNumber++;
                 }
-                
+
                 for (Client client : clients) {
                     client.startClient();
                 }
@@ -139,8 +139,12 @@ public class DistributionServer implements Server{
                 initClients();
                 return;
             }
-            
-            mainSupervisor = new MainSupervisor(this, philosophCount);
+            if (mainSupervisor == null) {
+                mainSupervisor = new MainSupervisor(this, new ArrayList<>(), philosophCount);
+            } else {
+                mainSupervisor = new MainSupervisor(this, mainSupervisor.getEatingCounters(), philosophCount);
+
+            }
             mainSupervisor.setClients(clients);
             mainSupervisor.start();
         } catch (RemoteException ex) {
@@ -175,7 +179,7 @@ public class DistributionServer implements Server{
     }
 
     private List<int[]> calculateDistribution() {
-        
+
         int numberOfClients = clients.size();
 
         List<int[]> philosophsAndPlacesList = new ArrayList<>();
@@ -194,26 +198,26 @@ public class DistributionServer implements Server{
                 int startIndexForPhilosops = 0;
 
                 for (int clientNumber = 0; clientNumber < numberOfClients; clientNumber++) {
-                    if(clientNumber < philosophCount) {
+                    if (clientNumber < philosophCount) {
                         philosophsAndPlaces[0] = startIndexForPhilosops;
                         philosophsAndPlaces[1] = startIndexForPhilosops + assuredPhilosophsForEachClient - 1;
                     } else {
                         philosophsAndPlaces[0] = -1;
                         philosophsAndPlaces[1] = -1;
                     }
-                    
+
                     if (leftOverPhilosopsToDistibute > 0) {
                         philosophsAndPlaces[1] = philosophsAndPlaces[1] + 1;
                     }
 
-                    if(clientNumber < placeCount) {
+                    if (clientNumber < placeCount) {
                         philosophsAndPlaces[2] = startIndexForPlaces;
                         philosophsAndPlaces[3] = startIndexForPlaces + assuredPlacesForEachClient - 1;
                     } else {
                         philosophsAndPlaces[2] = -1;
                         philosophsAndPlaces[3] = -1;
                     }
-                    
+
                     if (leftOverPlacesToDistribute > 0) {
                         philosophsAndPlaces[3] = philosophsAndPlaces[3] + 1;
                     }
@@ -221,8 +225,8 @@ public class DistributionServer implements Server{
                     leftOverPhilosopsToDistibute -= 1;
                     leftOverPlacesToDistribute -= 1;
 
-                    startIndexForPhilosops = philosophsAndPlaces[1]+1;
-                    startIndexForPlaces = philosophsAndPlaces[3]+1;
+                    startIndexForPhilosops = philosophsAndPlaces[1] + 1;
+                    startIndexForPlaces = philosophsAndPlaces[3] + 1;
 
                     philosophsAndPlacesList.add(philosophsAndPlaces);
                     philosophsAndPlaces = new int[4];
@@ -241,7 +245,7 @@ public class DistributionServer implements Server{
             philosophsAndPlaces[3] = -1;
             philosophsAndPlacesList.add(philosophsAndPlaces);
         }
-        return philosophsAndPlacesList;        
+        return philosophsAndPlacesList;
     }
 
 }

@@ -26,12 +26,18 @@ public class MainSupervisor extends Thread {
     private List<Client> clients;
     private final DistributionServer distributionServer;
 
-    public MainSupervisor(DistributionServer distributionServer, int philoCount) {
+    public MainSupervisor(DistributionServer distributionServer,List<Integer> philosophEatingCounters, int philoCount) {
         DistributionServer.logging("MainSupervisor Created");
         this.clients = new ArrayList<>();
-        this.philosophEatingCounters = new ArrayList<>();
-        for (int i = 0; i < philoCount; i++) {
-            philosophEatingCounters.add(0);
+        this.philosophEatingCounters = philosophEatingCounters;
+        if(philoCount > philosophEatingCounters.size()) {
+            for(int index = 0; index < philoCount-philosophEatingCounters.size(); index ++) {
+                philosophEatingCounters.add(0);
+            }
+        } else if(philoCount < philosophEatingCounters.size()) {
+            for(int index = philosophEatingCounters.size()-1; index >= philoCount; index--) {
+                philosophEatingCounters.remove(index);
+            }
         }
         this.distributionServer = distributionServer;
     }
