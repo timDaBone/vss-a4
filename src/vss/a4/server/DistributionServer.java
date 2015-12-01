@@ -128,7 +128,7 @@ public class DistributionServer implements Server{
                 for (Client client : clients) {
                     int[] philosophsAndPlaces = philosophsAndPlacesList.get(clientNumber);
                     // todo EATINGCOUNTERS
-                    client.init(philosophsAndPlaces[0], philosophsAndPlaces[1], new ArrayList<>(), philosophsAndPlaces[2], philosophsAndPlaces[3]);
+                    client.init(philosophsAndPlaces[0], philosophsAndPlaces[1], new ArrayList<>(), philosophsAndPlaces[2], philosophsAndPlaces[3], placeCount);
                     clientNumber++;
                 }
                 

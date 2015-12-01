@@ -112,15 +112,15 @@ public class Philosoph extends Thread {
         // Konvention: im Uhrzeigersinn -> größere Zahl ist links, kleinere Zahl ist rechts
         // Konvention: Plätze an geraden Indizes nehmen zuerst die linke Gabel, ungerade die rechte Gabel
         if (placeIndex % 2 == 0) {
-            distributedClient.takeFork((placeIndex + 1) % DistributedClient.MAX_PLACES);
-            DistributionServer.logging(this + " has fork " + (placeIndex + 1) % DistributedClient.MAX_PLACES);
+            distributedClient.takeFork((placeIndex + 1) % distributedClient.getPlaceCount());
+            DistributionServer.logging(this + " has fork " + (placeIndex + 1) % distributedClient.getPlaceCount());
             distributedClient.takeFork(placeIndex);
             DistributionServer.logging(this + " has fork " + placeIndex);
         } else {
             distributedClient.takeFork(placeIndex);
             DistributionServer.logging(this + " has fork " + placeIndex);
-            distributedClient.takeFork((placeIndex + 1) % DistributedClient.MAX_PLACES);
-            DistributionServer.logging(this + " has fork " + (placeIndex + 1) % DistributedClient.MAX_PLACES);
+            distributedClient.takeFork((placeIndex + 1) % distributedClient.getPlaceCount());
+            DistributionServer.logging(this + " has fork " + (placeIndex + 1) % distributedClient.getPlaceCount());
         }
 
         DistributionServer.logging(this + " goes eating");
@@ -133,7 +133,7 @@ public class Philosoph extends Thread {
 
         DistributionServer.logging(this + " passes forks back");
         distributedClient.passBackFork(placeIndex);
-        distributedClient.passBackFork((placeIndex + 1) % DistributedClient.MAX_PLACES);
+        distributedClient.passBackFork((placeIndex + 1) % distributedClient.getPlaceCount());
 
         DistributionServer.logging(this + " goes thinking");
         distributedClient.leavePlace(placeIndex);

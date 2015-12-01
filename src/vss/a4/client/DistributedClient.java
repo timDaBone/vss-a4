@@ -27,7 +27,6 @@ public class DistributedClient implements Client {
     public final static long PENALTY_TIME = 100;
     public final static long THINKING_TIME = 100;
     public final static long SLEEPING_TIME = 100;
-    static int MAX_PLACES;
 
     String serverIpAdress;
     String clientIpAdress;
@@ -106,12 +105,13 @@ public class DistributedClient implements Client {
     }
 
     @Override
-    public void init(int firstPhilosoph, int lastPhilosoph, List<Integer> eatingCounters, int firstPlace, int lastPlace) throws Exception {
+    public void init(int firstPhilosoph, int lastPhilosoph, List<Integer> eatingCounters, int firstPlace, int lastPlace, int placeCount) throws Exception {
         this.firstPhilosoph = firstPhilosoph;
         this.lastPhilosoph = lastPhilosoph;
         this.eatingCounters = eatingCounters;
         this.firstPlace = firstPlace;
         this.lastPlace = lastPlace;
+        this.placeCount = placeCount;
         this.table = new Table(firstPlace, lastPlace);
         DistributionServer.logging("Philosoph " + this + " initialized", null);
     }
@@ -209,6 +209,10 @@ public class DistributedClient implements Client {
     @Override
     public int getLastPlace() throws RemoteException {
         return this.lastPlace;
+    }
+
+    int getPlaceCount() {
+        return this.placeCount;
     }
 
 }
