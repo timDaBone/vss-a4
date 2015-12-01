@@ -146,4 +146,10 @@ public class Philosoph extends Thread {
     public int getEatingCounter() {
         return this.eatingCounter;
     }
+
+    @Override
+    public String toString() {
+        return "Philosoph-" + this.getIndex();
+    }
+    
 }

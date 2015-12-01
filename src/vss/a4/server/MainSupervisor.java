@@ -9,6 +9,8 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import vss.a4.client.Client;
@@ -24,11 +26,11 @@ public class MainSupervisor extends Thread {
     private List<Client> clients;
     private final DistributionServer distributionServer;
 
-    public MainSupervisor(DistributionServer distributionServer) {
+    public MainSupervisor(DistributionServer distributionServer, int philoCount) {
         DistributionServer.logging("MainSupervisor Created");
         this.clients = new ArrayList<>();
         this.philosophEatingCounters = new ArrayList<>();
-        for (int i = 0; i < clients.size(); i++) {
+        for (int i = 0; i < philoCount; i++) {
             philosophEatingCounters.add(0);
         }
         this.distributionServer = distributionServer;
@@ -47,7 +49,11 @@ public class MainSupervisor extends Thread {
             try {
                 synchronized (this) {
                     for (Client client : clients) {
-                        DistributionServer.logging("MainSupervisor get eating counter " + client.getPhiloCount());
+                        Map<Integer, Integer> philoCount = client.getPhiloCount();
+                        for(Entry<Integer, Integer> entry: philoCount.entrySet()) {
+                            philosophEatingCounters.set(entry.getKey(), entry.getValue());
+                        }
+                        DistributionServer.logging("MainSupervisor get eating counter " + philoCount);
                     }
                 }
             } catch (ConcurrentModificationException ex) {

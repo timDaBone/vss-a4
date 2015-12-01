@@ -132,7 +132,7 @@ public class DistributedClient implements Client {
         synchronized (this) {
             for(int index = this.firstPhilosoph; index <= this.lastPhilosoph; index++) {
                 // TODO EATINGCOUNTER ÜBERGEBEN
-                Philosoph philosoph = new Philosoph(table, index, SLEEPING_TIME, THINKING_TIME, 0, this);
+                Philosoph philosoph = new Philosoph(table, index, SLEEPING_TIME, THINKING_TIME, this.eatingCounters.get(index), this);
                 this.philosophs.add(philosoph);
                 philosoph.start();
             }

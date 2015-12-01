@@ -34,8 +34,6 @@ public class DistributionServer implements Server{
         this.mainSupervisor = null;
         this.DEBUG = debug;
         DistributionServer.logging("DEBUGMODUS", null);
-        this.mainSupervisor = new MainSupervisor(this);
-        this.mainSupervisor.start();
 
         // Get registry and bind server
         Registry registry = LocateRegistry.getRegistry(1099);
@@ -128,7 +126,7 @@ public class DistributionServer implements Server{
                 for (Client client : clients) {
                     int[] philosophsAndPlaces = philosophsAndPlacesList.get(clientNumber);
                     // todo EATINGCOUNTERS
-                    client.init(philosophsAndPlaces[0], philosophsAndPlaces[1], new ArrayList<>(), philosophsAndPlaces[2], philosophsAndPlaces[3], placeCount);
+                    client.init(philosophsAndPlaces[0], philosophsAndPlaces[1], mainSupervisor.getEatingCounters(), philosophsAndPlaces[2], philosophsAndPlaces[3], placeCount);
                     clientNumber++;
                 }
                 
@@ -142,7 +140,7 @@ public class DistributionServer implements Server{
                 return;
             }
             
-            mainSupervisor = new MainSupervisor(this);
+            mainSupervisor = new MainSupervisor(this, philosophCount);
             mainSupervisor.setClients(clients);
             mainSupervisor.start();
         } catch (RemoteException ex) {
