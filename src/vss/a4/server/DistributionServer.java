@@ -8,6 +8,8 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import vss.a4.client.Client;
 import vss.a4.exceptions.VssException;
 
@@ -66,79 +68,86 @@ public class DistributionServer implements Server{
 
     void initClients() {
         
-        this.clients.clear();
-        
-        if(mainSupervisor != null) {
-            mainSupervisor.stopMainSupervisor();
-        }
-        DistributionServer.logging("initClients()");
-        DistributionServer.logging("Client IP-List " + clientIpAdresses);
-        DistributionServer.logging("Client Listsize " + clients.size());
-        DistributionServer.logging("EatingCounters on Server " + this.philosophEatingCounters);
-
-        for (String ipAdress : clientIpAdresses) {
-            DistributionServer.logging("Adding IP " + ipAdress, null);
-            Client client = null;
-            try {
-                client = (Client) Naming.lookup("rmi://" + ipAdress + "/client");
-            } catch (RemoteException ex) {
-                removeFromIpAdressList(ex, ipAdress);
-                initClients();
-                return;
-            } catch (NotBoundException ex) {
-                removeFromIpAdressList(ex, ipAdress);
-                initClients();
-                return;
-            } catch (Exception ex) {
-                DistributionServer.logging("Naming.lookup to Client " + ipAdress + " throws Exception", ex);
+        try {
+            
+            this.clients.clear();
+            stopClients();
+            
+            if(mainSupervisor != null) {
+                mainSupervisor.stopMainSupervisor();
             }
-
-            DistributionServer.logging("Working on ipAdress " + ipAdress, null);
-            //DistributionServer.logging("Working on ipAdress " + client, null);
-            if (client != null) {
+            DistributionServer.logging("initClients()");
+            DistributionServer.logging("Client IP-List " + clientIpAdresses);
+            DistributionServer.logging("Client Listsize " + clients.size());
+            DistributionServer.logging("EatingCounters on Server " + this.philosophEatingCounters);
+            
+            for (String ipAdress : clientIpAdresses) {
+                DistributionServer.logging("Adding IP " + ipAdress, null);
+                Client client = null;
                 try {
-                    clients.add(client);
-                    client.setClients(clientIpAdresses);
+                    client = (Client) Naming.lookup("rmi://" + ipAdress + "/client");
                 } catch (RemoteException ex) {
-                    DistributionServer.logging("Client" + ipAdress + " is not available anymore.");
                     removeFromIpAdressList(ex, ipAdress);
                     initClients();
                     return;
-                } catch (VssException ex) {
-                    DistributionServer.logging("Client" + ex.getIpAdress() + " is not available anymore.");
-                    removeFromIpAdressList(ex, ex.getIpAdress());
+                } catch (NotBoundException ex) {
+                    removeFromIpAdressList(ex, ipAdress);
                     initClients();
                     return;
+                } catch (Exception ex) {
+                    DistributionServer.logging("Naming.lookup to Client " + ipAdress + " throws Exception", ex);
+                }
+                
+                DistributionServer.logging("Working on ipAdress " + ipAdress, null);
+                //DistributionServer.logging("Working on ipAdress " + client, null);
+                if (client != null) {
+                    try {
+                        clients.add(client);
+                        client.setClients(clientIpAdresses);
+                    } catch (RemoteException ex) {
+                        DistributionServer.logging("Client" + ipAdress + " is not available anymore.");
+                        removeFromIpAdressList(ex, ipAdress);
+                        initClients();
+                        return;
+                    } catch (VssException ex) {
+                        DistributionServer.logging("Client" + ex.getIpAdress() + " is not available anymore.");
+                        removeFromIpAdressList(ex, ex.getIpAdress());
+                        initClients();
+                        return;
+                    }
                 }
             }
-        }
-
-        try {
-            stopClients();
-
-            List<int[]> philosophsAndPlacesList = calculateDistribution();
             
-            // todo verteilung über die clients starten
-            int clientNumber = 0;
-            for (Client client : clients) {
-                int[] philosophsAndPlaces = philosophsAndPlacesList.get(clientNumber);
-                client.init(philosophsAndPlaces[0], philosophsAndPlaces[1], new ArrayList<>(), philosophsAndPlaces[2], philosophsAndPlaces[3]);
-                clientNumber++;
+            try {
+                //stopClients();
+                
+                List<int[]> philosophsAndPlacesList = calculateDistribution();
+                
+                // todo verteilung über die clients starten
+                int clientNumber = 0;
+                for (Client client : clients) {
+                    int[] philosophsAndPlaces = philosophsAndPlacesList.get(clientNumber);
+                    // todo EATINGCOUNTERS
+                    client.init(philosophsAndPlaces[0], philosophsAndPlaces[1], new ArrayList<>(), philosophsAndPlaces[2], philosophsAndPlaces[3]);
+                    clientNumber++;
+                }
+                
+                for (Client client : clients) {
+                    client.startClient();
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                clients.clear();
+                initClients();
+                return;
             }
-
-            for (Client client : clients) {
-                client.startClient();
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            clients.clear();
-            initClients();
-            return;
+            
+            mainSupervisor = new MainSupervisor(this);
+            mainSupervisor.setClients(clients);
+            mainSupervisor.start();
+        } catch (RemoteException ex) {
+            Logger.getLogger(DistributionServer.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-        mainSupervisor = new MainSupervisor(this);
-        mainSupervisor.setClients(clients);
-        mainSupervisor.start();
     }
 
     private void removeFromIpAdressList(Exception ex, String ipAdress) {

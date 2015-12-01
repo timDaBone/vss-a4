@@ -40,11 +40,6 @@ public class DistributedClient implements Client {
     private int lastPlace;
     private int firstPlace;
     private Table table;
-    int firstPhilosoph;
-    int lastPhilosoph;
-    List<Integer> eatingCounters;
-    int firstPlace;
-    int lastPlace;
     
 
     public List<Client> getClients() {
@@ -94,7 +89,6 @@ public class DistributedClient implements Client {
 
     @Override
     public void setClients(List<String> clientIpAdresses) throws VssException {
-
         // Cient behält nicht erreichbaren Client in Liste ?!?!
         for (String ipAdress : clientIpAdresses) {
             if (!ipAdress.equals(this.clientIpAdress)) {
@@ -111,25 +105,23 @@ public class DistributedClient implements Client {
     }
 
     @Override
-    public void init(int firstPhilosoph, int lastPhilosoph, List<Integer> eatingCounters, int firstPlace, int lastPlace, int placeCount) throws Exception {
+    public void init(int firstPhilosoph, int lastPhilosoph, List<Integer> eatingCounters, int firstPlace, int lastPlace) throws Exception {
         this.firstPhilosoph = firstPhilosoph;
         this.lastPhilosoph = lastPhilosoph;
         this.eatingCounters = eatingCounters;
         this.firstPlace = firstPlace;
         this.lastPlace = lastPlace;
-        this.placeCount = placeCount;
         this.table = new Table(firstPlace, lastPlace);
         DistributionServer.logging("Philosoph " + this + " initialized", null);
     }
 
     @Override
-    public Map<Integer, Integer> getPhiloCount() throws Exception {
+    public Map<Integer, Integer> getPhiloCount() {
         Map<Integer, Integer> philoCount = new HashMap<>();
         for(Philosoph philosoph: philosophs) {
             philoCount.put(philosoph.getIndex(), philosoph.getEatingCounter());
         }
-        DistributionServer.logging("FATAL ERROR", ex);
-        throw ex;
+        return philoCount;
     }
 
     @Override
@@ -138,7 +130,8 @@ public class DistributedClient implements Client {
         // synchronizer because of ThreadState
         synchronized (this) {
             for(int index = this.firstPhilosoph; index <= this.lastPhilosoph; index++) {
-                Philosoph philosoph = new Philosoph(table, index, SLEEPING_TIME, THINKING_TIME, placeCount, this);
+                // TODO EATINGCOUNTER ÜBERGEBEN
+                Philosoph philosoph = new Philosoph(table, index, SLEEPING_TIME, THINKING_TIME, 0, this);
                 this.philosophs.add(philosoph);
                 philosoph.start();
             }

@@ -72,9 +72,8 @@ public class Place {
      * Leave the place. (Should only be called by the Philosoph which sits on
      * the place.
      *
-     * @throws Exception
      */
-    public void leave() throws Exception {
+    public void leave() {
         empty = true;
         takePlace.release();
     }

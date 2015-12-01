@@ -138,4 +138,12 @@ public class Philosoph extends Thread {
         DistributionServer.logging(this + " goes thinking");
         distributedClient.leavePlace(placeIndex);
     }
+    
+    public int getIndex() {
+        return this.index;
+    }
+    
+    public int getEatingCounter() {
+        return this.eatingCounter;
+    }
 }
