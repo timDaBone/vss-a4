@@ -51,6 +51,7 @@ public class DistributedClient implements Client {
         this.serverIpAdress = serverIpAdress;
         this.clientIpAdress = clientIpAdress;
         this.clients = new ArrayList<>();
+        this.philosophs = new ArrayList<>();
 
         // Setup RMI to server
         this.server = (Server) Naming.lookup("rmi://" + serverIpAdress + "/server");
