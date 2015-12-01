@@ -127,7 +127,7 @@ public class DistributedClient implements Client {
 
     @Override
     public void startClient() throws RemoteException {
-        
+        this.philosophs.clear();
         // synchronizer because of ThreadState
         synchronized (this) {
             for(int index = this.firstPhilosoph; index <= this.lastPhilosoph; index++) {
