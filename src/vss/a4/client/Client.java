@@ -8,6 +8,7 @@ package vss.a4.client;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
+import java.util.Map;
 import vss.a4.exceptions.VssException;
 
 /**
@@ -19,5 +20,11 @@ public interface Client extends Remote {
     public void init(int firstPhilosoph, int lastPhilosoph, List<Integer> eatingCounters, int firstPlace, int lastPlace) throws Exception;
     public void startClient() throws RemoteException;
     public void stopClient() throws RemoteException;
-    public int getPhiloCount() throws Exception;
+    public Map<Integer, Integer> getPhiloCount() throws Exception;
+    public int tryEnqueue() throws Exception;
+    public void takeFork(int index) throws Exception;
+    public void passBackFork(int index) throws Exception;
+    public void leavePlace(int index) throws Exception;
+    public int getFirstPlace() throws RemoteException;
+    public int getLastPlace() throws RemoteException;
 }

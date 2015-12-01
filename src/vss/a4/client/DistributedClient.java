@@ -5,23 +5,15 @@
  */
 package vss.a4.client;
 
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.io.StringWriter;
-import java.net.MalformedURLException;
-import java.rmi.AccessException;
-import java.rmi.AlreadyBoundException;
 import java.rmi.Naming;
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
-import java.util.logging.Logger;
+import java.util.Map;
 import vss.a4.exceptions.VssException;
 import vss.a4.server.DistributionServer;
 import vss.a4.server.Server;
@@ -32,11 +24,27 @@ import vss.a4.server.Server;
  */
 public class DistributedClient implements Client {
 
+    public final static long PENALTY_TIME = 100;
+    public final static long THINKING_TIME = 100;
+    public final static long SLEEPING_TIME = 100;
+    static int MAX_PLACES;
+
     String serverIpAdress;
     String clientIpAdress;
     Server server;
     private List<Client> clients;
-    Philosoph philosoph;
+    private int firstPhilosoph;
+    private int lastPhilosoph;
+    private List<Integer> eatingCounters;
+    private int placeCount;
+    private int lastPlace;
+    private int firstPlace;
+    private Table table;
+
+    public List<Client> getClients() {
+        return clients;
+    }
+    List<Philosoph> philosophs;
 
     public DistributedClient(String serverIpAdress, String clientIpAdress, int registryPort) throws Exception {
         this.serverIpAdress = serverIpAdress;
@@ -78,26 +86,37 @@ public class DistributedClient implements Client {
     }
 
     @Override
-    public void init(int firstPhilosoph, int lastPhilosoph, List<Integer> eatingCounters, int firstPlace, int lastPlace) throws Exception {
-
+    public void init(int firstPhilosoph, int lastPhilosoph, List<Integer> eatingCounters, int firstPlace, int lastPlace, int placeCount) throws Exception {
+        this.firstPhilosoph = firstPhilosoph;
+        this.lastPhilosoph = lastPhilosoph;
+        this.eatingCounters = eatingCounters;
+        this.firstPlace = firstPlace;
+        this.lastPlace = lastPlace;
+        this.placeCount = placeCount;
+        this.table = new Table(firstPlace, lastPlace);
         DistributionServer.logging("Philosoph " + this + " initialized", null);
     }
 
     @Override
-    public int getPhiloCount() throws Exception {
-        if (philosoph != null) {
-            return philosoph.getCounter();
+    public Map<Integer, Integer> getPhiloCount() throws Exception {
+        Map<Integer, Integer> philoCount = new HashMap<>();
+        for(Philosoph philosoph: philosophs) {
+            philoCount.put(philosoph.getIndex(), philosoph.getEatingCounter());
         }
-        Exception ex = new Exception("Philosop " + this + " is NULL");
         DistributionServer.logging("FATAL ERROR", ex);
         throw ex;
     }
 
     @Override
     public void startClient() throws RemoteException {
+        
+        // synchronizer because of ThreadState
         synchronized (this) {
-            this.philosoph = new Philosoph(1);
-            philosoph.start();
+            for(int index = this.firstPhilosoph; index <= this.lastPhilosoph; index++) {
+                Philosoph philosoph = new Philosoph(table, index, SLEEPING_TIME, THINKING_TIME, placeCount, this);
+                this.philosophs.add(philosoph);
+                philosoph.start();
+            }
         }
 
         DistributionServer.logging("Philosoph " + this + " started");
@@ -105,15 +124,72 @@ public class DistributedClient implements Client {
 
     @Override
     public void stopClient() throws RemoteException {
-        if (philosoph != null) {
+        for(Philosoph philosoph: philosophs) {
             philosoph.stopPhilosoph();
-            DistributionServer.logging("Philosoph " + this + " stopped");
         }
     }
 
     @Override
     public String toString() {
         return "Client (" + clientIpAdress + ")";
+    }
+
+    @Override
+    public void takeFork(int forkIndex) throws Exception {
+        if (forkIndex >= this.firstPlace && forkIndex <= this.lastPlace) {
+            this.table.takeFork(forkIndex);
+        } else {
+            for (Client client : clients) {
+                if (forkIndex >= client.getFirstPlace() && forkIndex <= client.getLastPlace()) {
+                    client.takeFork(forkIndex);
+                    break;
+                }
+            }
+        }
+    }
+
+    @Override
+    public void passBackFork(int forkIndex) throws Exception {
+        if (forkIndex >= this.firstPlace && forkIndex <= this.lastPlace) {
+            this.table.passBackFork(forkIndex);
+        } else {
+            for (Client client : clients) {
+                if (forkIndex >= client.getFirstPlace() && forkIndex <= client.getLastPlace()) {
+                    client.passBackFork(forkIndex);
+                    break;
+                }
+            }
+        }
+    }
+
+    @Override
+    public void leavePlace(int placeIndex) throws Exception {
+        if (placeIndex >= this.firstPlace && placeIndex <= this.lastPlace) {
+            this.table.leavePlace(placeIndex);
+        } else {
+            for (Client client : clients) {
+                if (placeIndex >= client.getFirstPlace() && placeIndex <= client.getLastPlace()) {
+                    client.leavePlace(placeIndex);
+                    break;
+                }
+            }
+        }
+    }
+
+
+    @Override
+    public int tryEnqueue() throws Exception {
+        return this.table.tryEnqueue();
+    }
+
+    @Override
+    public int getFirstPlace() throws RemoteException {
+        return this.firstPlace;
+    }
+
+    @Override
+    public int getLastPlace() throws RemoteException {
+        return this.lastPlace;
     }
 
 }
