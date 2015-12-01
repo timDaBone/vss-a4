@@ -21,7 +21,7 @@ public class DistributionServer implements Server{
 
     List<String> clientIpAdresses;
     List<Client> clients;
-    private int philliCount;
+    private int philosophCount;
     private int placeCount;
     private MainSupervisor mainSupervisor;
     List<Integer> philosophEatingCounters;
@@ -53,7 +53,7 @@ public class DistributionServer implements Server{
 
     public void initServer(int placeCount, int philliCount, boolean firstInit) {
         this.placeCount = placeCount;
-        this.philliCount = philliCount;
+        this.philosophCount = philliCount;
         initClients();
     }
 
@@ -116,12 +116,14 @@ public class DistributionServer implements Server{
         try {
             stopClients();
 
+            List<int[]> philosophsAndPlacesList = calculateDistribution();
+            
             // todo verteilung über die clients starten
-            int index = 0;
+            int clientNumber = 0;
             for (Client client : clients) {
-                // Schleife ändern, wenn philosophen eingeführt werden TODO
-                client.init(0, 0, new ArrayList<Integer>(), 0, 0);
-                index++;
+                int[] philosophsAndPlaces = philosophsAndPlacesList.get(clientNumber);
+                client.init(philosophsAndPlaces[0], philosophsAndPlaces[1], new ArrayList<>(), philosophsAndPlaces[2], philosophsAndPlaces[3]);
+                clientNumber++;
             }
 
             for (Client client : clients) {
@@ -133,6 +135,7 @@ public class DistributionServer implements Server{
             initClients();
             return;
         }
+        
         mainSupervisor = new MainSupervisor(this);
         mainSupervisor.setClients(clients);
         mainSupervisor.start();
@@ -162,6 +165,76 @@ public class DistributionServer implements Server{
             System.out.println(message);
             ex.printStackTrace();
         }
+    }
+
+    private List<int[]> calculateDistribution() {
+        
+        int numberOfClients = clients.size();
+
+        List<int[]> philosophsAndPlacesList = new ArrayList<>();
+        int[] philosophsAndPlaces = new int[4];
+
+        if (numberOfClients != 0) {
+            if (numberOfClients > 1) {
+
+                int leftOverPhilosopsToDistibute = philosophCount % numberOfClients;
+                int assuredPhilosophsForEachClient = philosophCount / numberOfClients;
+
+                int leftOverPlacesToDistribute = placeCount % numberOfClients;
+                int assuredPlacesForEachClient = placeCount / numberOfClients;
+
+                int startIndexForPlaces = 0;
+                int startIndexForPhilosops = 0;
+
+                for (int clientNumber = 0; clientNumber < numberOfClients; clientNumber++) {
+                    if(clientNumber < philosophCount) {
+                        philosophsAndPlaces[0] = startIndexForPhilosops;
+                        philosophsAndPlaces[1] = startIndexForPhilosops + assuredPhilosophsForEachClient - 1;
+                    } else {
+                        philosophsAndPlaces[0] = -1;
+                        philosophsAndPlaces[1] = -1;
+                    }
+                    
+                    if (leftOverPhilosopsToDistibute > 0) {
+                        philosophsAndPlaces[1] = philosophsAndPlaces[1] + 1;
+                    }
+
+                    if(clientNumber < placeCount) {
+                        philosophsAndPlaces[2] = startIndexForPlaces;
+                        philosophsAndPlaces[3] = startIndexForPlaces + assuredPlacesForEachClient - 1;
+                    } else {
+                        philosophsAndPlaces[2] = -1;
+                        philosophsAndPlaces[3] = -1;
+                    }
+                    
+                    if (leftOverPlacesToDistribute > 0) {
+                        philosophsAndPlaces[3] = philosophsAndPlaces[3] + 1;
+                    }
+
+                    leftOverPhilosopsToDistibute -= 1;
+                    leftOverPlacesToDistribute -= 1;
+
+                    startIndexForPhilosops = philosophsAndPlaces[1]+1;
+                    startIndexForPlaces = philosophsAndPlaces[3]+1;
+
+                    philosophsAndPlacesList.add(philosophsAndPlaces);
+                    philosophsAndPlaces = new int[4];
+                }
+            } else {
+                philosophsAndPlaces[0] = 0;
+                philosophsAndPlaces[1] = philosophCount - 1;
+                philosophsAndPlaces[2] = 0;
+                philosophsAndPlaces[3] = placeCount - 1;
+                philosophsAndPlacesList.add(philosophsAndPlaces);
+            }
+        } else {
+            philosophsAndPlaces[0] = -1;
+            philosophsAndPlaces[1] = -1;
+            philosophsAndPlaces[2] = -1;
+            philosophsAndPlaces[3] = -1;
+            philosophsAndPlacesList.add(philosophsAndPlaces);
+        }
+        return philosophsAndPlacesList;        
     }
 
 }

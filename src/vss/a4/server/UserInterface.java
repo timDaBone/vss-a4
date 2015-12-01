@@ -43,8 +43,8 @@ public class UserInterface extends Thread {
                 String[] startConfigParts = startConfig.split(",");
                 int placeCount = Integer.parseInt(startConfigParts[0]);
                 int philliCount = Integer.parseInt(startConfigParts[1]);
-                System.out.println("Connect Clients and press Enter if all Clients connected ... ");
-                reader.readLine();
+                //System.out.println("Connect Clients and press Enter if all Clients connected ... ");
+                //reader.readLine();
                 server.initServer(placeCount, philliCount, firstInit);
                 firstInit = false;
             } catch (Exception e) {

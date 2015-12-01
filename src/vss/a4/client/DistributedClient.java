@@ -40,6 +40,12 @@ public class DistributedClient implements Client {
     private int lastPlace;
     private int firstPlace;
     private Table table;
+    int firstPhilosoph;
+    int lastPhilosoph;
+    List<Integer> eatingCounters;
+    int firstPlace;
+    int lastPlace;
+    
 
     public List<Client> getClients() {
         return clients;
@@ -53,24 +59,43 @@ public class DistributedClient implements Client {
 
         // Setup RMI to server
         this.server = (Server) Naming.lookup("rmi://" + serverIpAdress + "/server");
-
+        
         // Initiate local RMI
         Registry registry = LocateRegistry.getRegistry(registryPort);
+             
+        String[] alreadyBindList = registry.list();
+        
+        boolean bind = true;
+        for(String alreadyBind: alreadyBindList) {
+            System.out.println(alreadyBind);
+            if(alreadyBind.equals("client"))
+                bind = false;
+        }
+        
         Client client = (Client) UnicastRemoteObject.exportObject(this, 0);
-        registry.bind("client", client);
+        
+        if(bind) {
+            registry.bind("client", client);
+        } else {
+            registry.rebind("client", client);
+        }
     }
 
     public static void main(String[] args) {
         try {
             DistributedClient distributedClient = new DistributedClient(args[0], args[1], Integer.parseInt(args[2]));
             distributedClient.server.addClient(distributedClient.clientIpAdress);
+            System.out.println("Client connected to Server");
         } catch (Exception ex) {
+            ex.printStackTrace();
             DistributionServer.logging("Client Registry Error or Server not available", ex);
         }
     }
 
     @Override
     public void setClients(List<String> clientIpAdresses) throws VssException {
+
+        // Cient behält nicht erreichbaren Client in Liste ?!?!
         for (String ipAdress : clientIpAdresses) {
             if (!ipAdress.equals(this.clientIpAdress)) {
                 try {
