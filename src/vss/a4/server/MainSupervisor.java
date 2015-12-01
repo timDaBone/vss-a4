@@ -30,8 +30,10 @@ public class MainSupervisor extends Thread {
         DistributionServer.logging("MainSupervisor Created");
         this.clients = new ArrayList<>();
         this.philosophEatingCounters = philosophEatingCounters;
+        System.out.println("SIIIIIIIIIIIIZZEZEEEEE PHILO LISTE" + philosophEatingCounters.size());
         if(philoCount > philosophEatingCounters.size()) {
             for(int index = 0; index < philoCount-philosophEatingCounters.size(); index ++) {
+                System.out.println("ADDD PHILO AT INDEX " + index);
                 philosophEatingCounters.add(0);
             }
         } else if(philoCount < philosophEatingCounters.size()) {
