@@ -24,9 +24,11 @@ import vss.a4.server.Server;
  */
 public class DistributedClient implements Client {
 
-    public final static long PENALTY_TIME = 100;
+    public final static long PENALTY_TIME = 10000;
     public final static long THINKING_TIME = 100;
     public final static long SLEEPING_TIME = 100;
+    static int MAXIMUM_EATING_DIFFERENCE_AVERAGE = 10;
+    static long SLEEPING_TIME_SUPERVISOR = 100;
 
     String serverIpAdress;
     String clientIpAdress;
@@ -39,7 +41,7 @@ public class DistributedClient implements Client {
     private int lastPlace;
     private int firstPlace;
     private Table table;
-    
+    private Supervisor supervisor;
 
     public List<Client> getClients() {
         return clients;
@@ -54,22 +56,23 @@ public class DistributedClient implements Client {
 
         // Setup RMI to server
         this.server = (Server) Naming.lookup("rmi://" + serverIpAdress + "/server");
-        
+
         // Initiate local RMI
         Registry registry = LocateRegistry.getRegistry(registryPort);
-             
+
         String[] alreadyBindList = registry.list();
-        
+
         boolean bind = true;
-        for(String alreadyBind: alreadyBindList) {
+        for (String alreadyBind : alreadyBindList) {
             System.out.println(alreadyBind);
-            if(alreadyBind.equals("client"))
+            if (alreadyBind.equals("client")) {
                 bind = false;
+            }
         }
-        
+
         Client client = (Client) UnicastRemoteObject.exportObject(this, 0);
-        
-        if(bind) {
+
+        if (bind) {
             registry.bind("client", client);
         } else {
             registry.rebind("client", client);
@@ -119,7 +122,7 @@ public class DistributedClient implements Client {
     @Override
     public Map<Integer, Integer> getPhiloCount() {
         Map<Integer, Integer> philoCount = new HashMap<>();
-        for(Philosoph philosoph: philosophs) {
+        for (Philosoph philosoph : philosophs) {
             philoCount.put(philosoph.getIndex(), philosoph.getEatingCounter());
         }
         return philoCount;
@@ -130,22 +133,27 @@ public class DistributedClient implements Client {
         this.philosophs.clear();
         // synchronizer because of ThreadState
         synchronized (this) {
-            for(int index = this.firstPhilosoph; index <= this.lastPhilosoph; index++) {
+            for (int index = this.firstPhilosoph; index <= this.lastPhilosoph; index++) {
                 // TODO EATINGCOUNTER ÜBERGEBEN
                 Philosoph philosoph = new Philosoph(table, index, SLEEPING_TIME, THINKING_TIME, this.eatingCounters.get(index), this);
                 this.philosophs.add(philosoph);
                 philosoph.start();
             }
+            this.supervisor = new Supervisor(philosophs);
+            this.supervisor.start();
         }
+        
+        
 
         DistributionServer.logging("Philosoph " + this + " started");
     }
 
     @Override
     public void stopClient() throws RemoteException {
-        for(Philosoph philosoph: philosophs) {
+        for (Philosoph philosoph : philosophs) {
             philosoph.stopPhilosoph();
         }
+        this.supervisor.stopSupervisor();
     }
 
     @Override
@@ -194,7 +202,6 @@ public class DistributedClient implements Client {
             }
         }
     }
-
 
     @Override
     public int tryEnqueue() throws Exception {

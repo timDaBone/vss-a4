@@ -151,5 +151,9 @@ public class Philosoph extends Thread {
     public String toString() {
         return "Philosoph-" + this.getIndex();
     }
+
+    void punish() {
+        willBePunished = true;
+    }
     
 }
