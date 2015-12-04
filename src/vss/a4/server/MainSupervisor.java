@@ -30,9 +30,11 @@ public class MainSupervisor extends Thread {
         DistributionServer.logging("MainSupervisor Created");
         this.clients = new ArrayList<>();
         this.philosophEatingCounters = philosophEatingCounters;
-        System.out.println("SIIIIIIIIIIIIZZEZEEEEE PHILO LISTE" + philosophEatingCounters.size());
+        System.out.println("SIIIIIIIIIIIIZZEZEEEEE PHILO LISTE: " + philosophEatingCounters.size());
+        System.out.println("Philocount: " + philoCount);
         if(philoCount > philosophEatingCounters.size()) {
-            for(int index = 0; index < philoCount-philosophEatingCounters.size(); index ++) {
+            System.out.println("Add " + (philoCount-philosophEatingCounters.size()) + " philos");
+            for(int index = philosophEatingCounters.size(); index < philoCount; index ++) {
                 System.out.println("ADDD PHILO AT INDEX " + index);
                 philosophEatingCounters.add(0);
             }
@@ -41,6 +43,7 @@ public class MainSupervisor extends Thread {
                 philosophEatingCounters.remove(index);
             }
         }
+        System.out.println("PHILO SIZE AFTER: " + philosophEatingCounters.size());
         this.distributionServer = distributionServer;
     }
 

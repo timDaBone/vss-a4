@@ -116,6 +116,13 @@ public class DistributionServer implements Server {
                 }
             }
 
+            if (mainSupervisor == null) {
+                mainSupervisor = new MainSupervisor(this, new ArrayList<>(), philosophCount);
+            } else {
+                mainSupervisor = new MainSupervisor(this, mainSupervisor.getEatingCounters(), philosophCount);
+
+            }
+            
             try {
                 //stopClients();
 
@@ -126,6 +133,7 @@ public class DistributionServer implements Server {
                 for (Client client : clients) {
                     int[] philosophsAndPlaces = philosophsAndPlacesList.get(clientNumber);
                     // todo EATINGCOUNTERS
+                    System.out.println(philosophsAndPlaces[0] + " " + philosophsAndPlaces[1] + " " + philosophsAndPlaces[2]+ " " + philosophsAndPlaces[3]);
                     client.init(philosophsAndPlaces[0], philosophsAndPlaces[1], mainSupervisor.getEatingCounters(), philosophsAndPlaces[2], philosophsAndPlaces[3], placeCount);
                     clientNumber++;
                 }
@@ -138,12 +146,6 @@ public class DistributionServer implements Server {
                 clients.clear();
                 initClients();
                 return;
-            }
-            if (mainSupervisor == null) {
-                mainSupervisor = new MainSupervisor(this, new ArrayList<>(), philosophCount);
-            } else {
-                mainSupervisor = new MainSupervisor(this, mainSupervisor.getEatingCounters(), philosophCount);
-
             }
             mainSupervisor.setClients(clients);
             mainSupervisor.start();
