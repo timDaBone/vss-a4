@@ -167,7 +167,7 @@ public class DistributionServer implements Server {
     }
 
     public static void logging(String message) {
-        System.out.println(message);
+        System.out.println(message +  System.currentTimeMillis());
     }
 
     public static void logging(String message, Exception ex) {

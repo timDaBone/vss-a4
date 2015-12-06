@@ -27,7 +27,7 @@ public class Supervisor extends Thread {
             for(Philosoph philosoph: philosophs) {
                 averageEatingCounter += philosoph.getEatingCounter();
             }
-
+            
             averageEatingCounter = averageEatingCounter/philosophs.size();
 
             for(Philosoph philosoph: philosophs) {

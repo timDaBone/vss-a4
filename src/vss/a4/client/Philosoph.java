@@ -48,6 +48,7 @@ public class Philosoph extends Thread {
                         if (willBePunished) {
                             System.out.println(this + " starts punishment");
                             Thread.sleep(DistributedClient.PENALTY_TIME);
+                            System.out.println(this + " punishment over");
                             willBePunished = false;
                         }
                         int placeIndex = enqueueToPlace();
