@@ -76,7 +76,7 @@ public class MainSupervisor extends Thread {
             } catch (Exception ex) {
                 DistributionServer.logging("MainSupervisor has ConnectionProbblem with Client", ex);
             }
-            DistributionServer.logging("Clients on MainSupervisor "  + clients, null);
+            //DistributionServer.logging("Clients on MainSupervisor "  + clients, null);
         }
     }
 
