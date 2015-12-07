@@ -5,7 +5,10 @@
  */
 package vss.a4.client;
 
+import java.rmi.RemoteException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import vss.a4.server.DistributionServer;
 
 /**
@@ -59,7 +62,11 @@ public class Philosoph extends Thread {
                 }
             } catch (Exception e) {
                 DistributionServer.logging("Error at Philosoph-" + getIndex(), e);
-                distributedClient.reportError();
+                try {
+                    distributedClient.reportError();
+                } catch (RemoteException ex) {
+                    ex.printStackTrace();
+                }
             }
         }
     }
