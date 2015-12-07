@@ -45,7 +45,9 @@ public class Place {
         if (tookPlace) {
             if (isEmpty()) {
                 empty = false;
-            } 
+            } else {
+                throw new Exception("Place-" + this.getIndex() + " is not empty!");
+            }
         }
         return tookPlace;
     }
@@ -60,6 +62,8 @@ public class Place {
         takePlace.acquire();
         if (isEmpty()) {
             empty = false;
+        } else {
+            throw new Exception("Place-" + this.getIndex() + " is not empty!");
         }
     }
 
