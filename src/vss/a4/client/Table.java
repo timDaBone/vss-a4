@@ -34,15 +34,15 @@ public class Table {
     }
 
     void passBackFork(int placeIndex) {
-        this.forks.get(placeIndex-startPlace).passBack();
+        this.forks.get(placeIndex - startPlace).passBack();
     }
 
     void leavePlace(int placeIndex) {
-        this.places.get(placeIndex-startPlace).leave();
+        this.places.get(placeIndex - startPlace).leave();
     }
 
     void takeFork(int placeIndex) throws InterruptedException {
-       this.forks.get(placeIndex-startPlace).take();
+        this.forks.get(placeIndex - startPlace).take();
     }
 
     Iterable<Place> getPlaces() {
@@ -50,7 +50,7 @@ public class Table {
     }
 
     Place getPlace(int placeIndex) {
-        return this.places.get(placeIndex-startPlace);
+        return this.places.get(placeIndex - startPlace);
     }
 
     int tryEnqueue() throws Exception {

@@ -74,7 +74,7 @@ public class Philosoph extends Thread {
     }
 
     private int enqueueToPlace() throws Exception {
-        Place minPlace = table.getPlace(0);
+        Place minPlace = table.getPlace(distributedClient.getStartPlace());
 
         for (Place place : table.getPlaces()) {
             if (place.tryEnqueue()) {

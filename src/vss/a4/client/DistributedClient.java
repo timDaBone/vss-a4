@@ -223,4 +223,8 @@ public class DistributedClient implements Client {
         return this.placeCount;
     }
 
+    int getStartPlace() {
+        return this.firstPlace;
+    }
+
 }
