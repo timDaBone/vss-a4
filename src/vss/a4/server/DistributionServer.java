@@ -265,6 +265,7 @@ public class DistributionServer implements Server {
 
     @Override
     public void reportError() {
+        DistributionServer.logging("REPORT ERROR");
         initClients();
     }
 

@@ -61,12 +61,13 @@ public class Philosoph extends Thread {
                     sleeping();
                 }
             } catch (Exception e) {
+                shouldRun = false;
                 DistributionServer.logging("Error at Philosoph-" + getIndex(), e);
                 try {
                     distributedClient.reportError();
-                    shouldRun = false;
+                    
+                    e.printStackTrace();
                 } catch (RemoteException ex) {
-                    shouldRun = false;
                     ex.printStackTrace();
                 }
             }
