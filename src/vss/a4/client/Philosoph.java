@@ -91,7 +91,7 @@ public class Philosoph extends Thread {
 
         for (Place place : table.getPlaces()) {
             if (place.tryEnqueue()) {
-                System.out.println(this + " is enqueued at place " + place.getIndex());
+                System.out.println(this + " is enqueued at local place " + place.getIndex());
                 return place.getIndex();
             }
             if (place.getQueueLength() < minPlace.getQueueLength()) {
@@ -104,13 +104,13 @@ public class Philosoph extends Thread {
         for (Client client : clients) {
             int placeIndex = client.tryEnqueue();
             if (placeIndex >= 0) {
-                System.out.println(this + " is enqueued at place " + placeIndex);
+                System.out.println(this + " is enqueued at remote place " + placeIndex);
                 return placeIndex;
             }
         }
 
         minPlace.enqueue();
-        System.out.println(this + " is enqueued at place " + minPlace.getIndex());
+        System.out.println(this + " is enqueued at local minPlace " + minPlace.getIndex());
         return minPlace.getIndex();
     }
 
