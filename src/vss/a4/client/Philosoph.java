@@ -64,7 +64,9 @@ public class Philosoph extends Thread {
                 DistributionServer.logging("Error at Philosoph-" + getIndex(), e);
                 try {
                     distributedClient.reportError();
+                    shouldRun = false;
                 } catch (RemoteException ex) {
+                    shouldRun = false;
                     ex.printStackTrace();
                 }
             }

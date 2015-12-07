@@ -1,5 +1,6 @@
 package vss.a4.server;
 
+import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -64,10 +65,21 @@ public class DistributionServer implements Server {
         }
     }
 
-    void initClients() {
+    synchronized void initClients() {
 
-        try {
-
+            while(!initializationProcess()) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(DistributionServer.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        
+    }
+    
+    boolean initializationProcess() {
+        String actualIpAdress = "";
+        try{
             this.clients.clear();
             stopClients();
 
@@ -78,43 +90,24 @@ public class DistributionServer implements Server {
             DistributionServer.logging("Client IP-List " + clientIpAdresses);
             DistributionServer.logging("Client Listsize " + clients.size());
             DistributionServer.logging("EatingCounters on Server " + this.philosophEatingCounters);
+            
 
             for (String ipAdress : clientIpAdresses) {
+                actualIpAdress = ipAdress;
                 DistributionServer.logging("Adding IP " + ipAdress, null);
                 Client client = null;
-                try {
                     client = (Client) Naming.lookup("rmi://" + ipAdress + "/client");
-                } catch (RemoteException ex) {
-                    removeFromIpAdressList(ex, ipAdress);
-                    initClients();
-                    return;
-                } catch (NotBoundException ex) {
-                    removeFromIpAdressList(ex, ipAdress);
-                    initClients();
-                    return;
-                } catch (Exception ex) {
-                    DistributionServer.logging("Naming.lookup to Client " + ipAdress + " throws Exception", ex);
-                }
 
                 DistributionServer.logging("Working on ipAdress " + ipAdress, null);
                 //DistributionServer.logging("Working on ipAdress " + client, null);
                 if (client != null) {
-                    try {
+                   
                         clients.add(client);
                         client.setClients(clientIpAdresses);
-                    } catch (RemoteException ex) {
-                        DistributionServer.logging("Client" + ipAdress + " is not available anymore.");
-                        removeFromIpAdressList(ex, ipAdress);
-                        initClients();
-                        return;
-                    } catch (VssException ex) {
-                        DistributionServer.logging("Client" + ex.getIpAdress() + " is not available anymore.");
-                        removeFromIpAdressList(ex, ex.getIpAdress());
-                        initClients();
-                        return;
-                    }
+                    
                 }
             }
+            actualIpAdress = "";
 
             if (mainSupervisor == null) {
                 mainSupervisor = new MainSupervisor(this, new ArrayList<>(), philosophCount);
@@ -126,8 +119,6 @@ public class DistributionServer implements Server {
             mainSupervisor.setClients(clients);
             mainSupervisor.start();
             
-            try {
-                //stopClients();
 
                 List<int[]> philosophsAndPlacesList = calculateDistribution();
 
@@ -144,15 +135,36 @@ public class DistributionServer implements Server {
                 for (Client client : clients) {
                     client.startClient();
                 }
-            } catch (Exception ex) {
-                ex.printStackTrace();
+        } catch (VssException e) {
+            removeFromIpAdressList(e, e.getIpAdress());
+            clients.clear();
+            return false;
+            
+        }catch (RemoteException e) {
+            
+            if(actualIpAdress != "") {
+                removeFromIpAdressList(e, actualIpAdress);
                 clients.clear();
-                initClients();
-                return;
+            } else {
+            logging("RemoteEx at initialProc", e);
+                
             }
-        } catch (RemoteException ex) {
-            Logger.getLogger(DistributionServer.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+            
+        }catch (NotBoundException e) {
+            logging("NotBound at initialProc", e);
+            return false;
+            
+        } catch (MalformedURLException e) {
+            logging("Malformed at initialProc", e);
+            return false;
+            
+        } catch (Exception e) {
+            logging("Exception at initialProc", e);
+            return false;
         }
+        return true;
+            
     }
 
     private void removeFromIpAdressList(Exception ex, String ipAdress) {
