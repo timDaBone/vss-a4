@@ -16,5 +16,5 @@ public interface Server extends Remote {
 
     public void addClient(String ipAdress) throws RemoteException;
     public void initServer(int i, int j, boolean firstInit) throws Exception;
-    public void reportError();
+    public void reportError() throws RemoteException;
 }
