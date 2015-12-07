@@ -40,8 +40,13 @@ public class Place {
         return empty;
     }
 
-    public boolean tryEnqueue() throws Exception {
-        boolean tookPlace = takePlace.tryAcquire(0, TimeUnit.SECONDS);
+    public boolean tryEnqueue() {
+        boolean tookPlace = false;
+        try {
+            tookPlace = takePlace.tryAcquire(0, TimeUnit.SECONDS);
+        } catch(InterruptedException ex) {
+            ex.printStackTrace();
+        }
         if (tookPlace) {
             if (isEmpty()) {
                 empty = false;
@@ -56,8 +61,12 @@ public class Place {
      *
      * @throws Exception
      */
-    public void enqueue() throws Exception {
-        takePlace.acquire();
+    public void enqueue() {
+        try {
+            takePlace.acquire();
+        } catch(InterruptedException ex) {
+            ex.printStackTrace();
+        }
         if (isEmpty()) {
             empty = false;
         }

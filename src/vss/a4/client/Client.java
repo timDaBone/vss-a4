@@ -21,10 +21,10 @@ public interface Client extends Remote {
     public void startClient() throws RemoteException;
     public void stopClient() throws RemoteException;
     public Map<Integer, Integer> getPhiloCount() throws Exception;
-    public int tryEnqueue() throws Exception;
-    public void takeFork(int index) throws Exception;
-    public void passBackFork(int index) throws Exception;
-    public void leavePlace(int index) throws Exception;
+    public int tryEnqueue() throws RemoteException;
+    public void takeFork(int index) throws RemoteException;
+    public void passBackFork(int index) throws RemoteException;
+    public void leavePlace(int index) throws RemoteException;
     public int getFirstPlace() throws RemoteException;
     public int getLastPlace() throws RemoteException;
 }

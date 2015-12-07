@@ -44,8 +44,6 @@ public class DistributionServer implements Server {
     public static void main(String[] args) {
         try {
             DistributionServer server = new DistributionServer(Boolean.parseBoolean(args[0]));
-            //UserInterface userInterface = new UserInterface(server);
-            //userInterface.start();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -59,6 +57,7 @@ public class DistributionServer implements Server {
 
     private void stopClients() throws RemoteException {
         DistributionServer.logging("stopClients()");
+
         for (Client client : clients) {
             client.stopClient();
         }
@@ -69,6 +68,7 @@ public class DistributionServer implements Server {
         try {
 
             this.clients.clear();
+
             stopClients();
 
             if (mainSupervisor != null) {
@@ -122,10 +122,10 @@ public class DistributionServer implements Server {
                 mainSupervisor = new MainSupervisor(this, mainSupervisor.getEatingCounters(), philosophCount);
 
             }
-            
+
             mainSupervisor.setClients(clients);
             mainSupervisor.start();
-            
+
             try {
                 //stopClients();
 
@@ -133,10 +133,11 @@ public class DistributionServer implements Server {
 
                 // todo verteilung über die clients starten
                 int clientNumber = 0;
+
                 for (Client client : clients) {
                     int[] philosophsAndPlaces = philosophsAndPlacesList.get(clientNumber);
                     // todo EATINGCOUNTERS
-                    System.out.println(philosophsAndPlaces[0] + " " + philosophsAndPlaces[1] + " " + philosophsAndPlaces[2]+ " " + philosophsAndPlaces[3]);
+                    System.out.println(philosophsAndPlaces[0] + " " + philosophsAndPlaces[1] + " " + philosophsAndPlaces[2] + " " + philosophsAndPlaces[3]);
                     client.init(philosophsAndPlaces[0], philosophsAndPlaces[1], mainSupervisor.getEatingCounters(), philosophsAndPlaces[2], philosophsAndPlaces[3], placeCount);
                     clientNumber++;
                 }
@@ -168,7 +169,7 @@ public class DistributionServer implements Server {
     }
 
     public static void logging(String message) {
-        System.out.println(message +  "\t\t\t" + System.currentTimeMillis());
+        System.out.println(message + "\t\t\t" + System.currentTimeMillis());
     }
 
     public static void logging(String message, Exception ex) {

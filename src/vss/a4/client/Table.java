@@ -53,7 +53,7 @@ public class Table {
         return this.places.get(placeIndex - startPlace);
     }
 
-    int tryEnqueue() throws Exception {
+    int tryEnqueue() {
         for (Place place : getPlaces()) {
             if (place.tryEnqueue()) {
                 return place.getIndex();

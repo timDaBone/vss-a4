@@ -60,13 +60,11 @@ public class Philosoph extends Thread {
                     }
                     sleeping();
                 }
-            } catch (Exception e) {
-                DistributionServer.logging("Error at Philosoph-" + getIndex(), e);
-                try {
-                    distributedClient.reportError();
-                } catch (RemoteException ex) {
+            } catch(InterruptedException ex) {
                     ex.printStackTrace();
-                }
+            } catch (RemoteException e) {
+                DistributionServer.logging("Error at Philosoph-" + getIndex(), e);
+                distributedClient.reportError();
             }
         }
     }
@@ -81,7 +79,7 @@ public class Philosoph extends Thread {
         Thread.sleep(DistributedClient.THINKING_TIME);
     }
 
-    private int enqueueToPlace() throws Exception {
+    private int enqueueToPlace() throws RemoteException {
         Place minPlace = table.getPlace(distributedClient.getStartPlace());
 
         for (Place place : table.getPlaces()) {
@@ -114,7 +112,7 @@ public class Philosoph extends Thread {
         Thread.sleep(DistributedClient.SLEEPING_TIME);
     }
 
-    private void eating(int placeIndex) throws Exception {
+    private void eating(int placeIndex) throws RemoteException {
         DistributionServer.logging(this + " goes eating");
         DistributionServer.logging(this + " took place " + placeIndex);
 
@@ -136,8 +134,11 @@ public class Philosoph extends Thread {
 
         // schbaggeddi  schbaggeddi  schbaggeddi mmmmmmhhhhhh  schbaggeddi mmmmmmhhhhhh schbaggeddi  
         // schbaggeddi mmmmmmhhhhhh schbaggeddi  schbaggeddi  schbaggeddi  schbaggeddi mmmmmmhhhhhh
-        Thread.sleep(this.eatingTime);
-
+        try {
+            Thread.sleep(this.eatingTime);
+        } catch(InterruptedException ex) {
+            ex.printStackTrace();
+        }
         this.eatingCounter++;
 
         DistributionServer.logging(this + " passes forks back");

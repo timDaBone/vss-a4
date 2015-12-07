@@ -42,6 +42,8 @@ public class DistributedClient implements Client {
     private int firstPlace;
     private Table table;
     private Supervisor supervisor;
+    
+    private boolean reportErrorOnce;
 
     public List<Client> getClients() {
         return clients;
@@ -53,6 +55,7 @@ public class DistributedClient implements Client {
         this.clientIpAdress = clientIpAdress;
         this.clients = new ArrayList<>();
         this.philosophs = new ArrayList<>();
+        this.reportErrorOnce = true;
 
         // Setup RMI to server
         this.server = (Server) Naming.lookup("rmi://" + serverIpAdress + "/server");
@@ -115,6 +118,7 @@ public class DistributedClient implements Client {
         this.firstPlace = firstPlace;
         this.lastPlace = lastPlace;
         this.placeCount = placeCount;
+        this.reportErrorOnce = true;
         this.table = new Table(firstPlace, lastPlace);
         DistributionServer.logging(firstPhilosoph + " " + lastPhilosoph + " " + firstPlace + " " + this.lastPlace);
         DistributionServer.logging("Philosoph " + this + " initialized");
@@ -163,9 +167,13 @@ public class DistributedClient implements Client {
     }
 
     @Override
-    public void takeFork(int forkIndex) throws Exception {
+    public void takeFork(int forkIndex) throws RemoteException {
         if (forkIndex >= this.firstPlace && forkIndex <= this.lastPlace) {
-            this.table.takeFork(forkIndex);
+            try {
+                this.table.takeFork(forkIndex);
+            } catch(InterruptedException ex) {
+                ex.printStackTrace();
+            }
         } else {
             for (Client client : clients) {
                 if (forkIndex >= client.getFirstPlace() && forkIndex <= client.getLastPlace()) {
@@ -177,7 +185,7 @@ public class DistributedClient implements Client {
     }
 
     @Override
-    public void passBackFork(int forkIndex) throws Exception {
+    public void passBackFork(int forkIndex) throws RemoteException {
         if (forkIndex >= this.firstPlace && forkIndex <= this.lastPlace) {
             this.table.passBackFork(forkIndex);
         } else {
@@ -191,7 +199,7 @@ public class DistributedClient implements Client {
     }
 
     @Override
-    public void leavePlace(int placeIndex) throws Exception {
+    public void leavePlace(int placeIndex) throws RemoteException {
         if (placeIndex >= this.firstPlace && placeIndex <= this.lastPlace) {
             this.table.leavePlace(placeIndex);
         } else {
@@ -205,7 +213,7 @@ public class DistributedClient implements Client {
     }
 
     @Override
-    public int tryEnqueue() throws Exception {
+    public int tryEnqueue() {
         return this.table.tryEnqueue();
     }
 
@@ -227,8 +235,15 @@ public class DistributedClient implements Client {
         return this.firstPlace;
     }
 
-    void reportError() throws RemoteException {
-        this.server.reportError();
+    void reportError() {
+        if(reportErrorOnce) {
+            try {
+                this.server.reportError();
+            } catch(RemoteException ex) {
+                ex.printStackTrace();
+            }
+        }
+        this.reportErrorOnce = false;
     }
 
 }
