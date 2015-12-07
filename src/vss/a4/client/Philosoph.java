@@ -60,16 +60,17 @@ public class Philosoph extends Thread {
                     }
                     sleeping();
                 }
-            } catch (Exception e) {
+            } catch (RemoteException e) {
                 shouldRun = false;
-                DistributionServer.logging("Error at Philosoph-" + getIndex(), e);
+                DistributionServer.logging("RemoteException at Philosoph-" + getIndex(), e);
                 try {
                     distributedClient.reportError();
                     
-                    e.printStackTrace();
                 } catch (RemoteException ex) {
-                    ex.printStackTrace();
+                    DistributionServer.logging("Nested RemoteException at Philosoph-" + getIndex(), ex);
                 }
+            } catch (Exception e) {
+                DistributionServer.logging("Exception at Philosoph-" + getIndex(), e);
             }
         }
     }
