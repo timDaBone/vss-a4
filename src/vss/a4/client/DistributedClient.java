@@ -116,7 +116,8 @@ public class DistributedClient implements Client {
         this.lastPlace = lastPlace;
         this.placeCount = placeCount;
         this.table = new Table(firstPlace, lastPlace);
-        DistributionServer.logging("Philosoph " + this + " initialized", null);
+        DistributionServer.logging(firstPhilosoph + " " + lastPhilosoph + " " + firstPlace + " " + this.lastPlace);
+        DistributionServer.logging("Philosoph " + this + " initialized");
     }
 
     @Override

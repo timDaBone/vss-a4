@@ -54,7 +54,7 @@ public class Table {
     int tryEnqueue() throws Exception {
         for (Place place : getPlaces()) {
             if (place.tryEnqueue()) {
-                return place.getIndex();
+                return place.getIndex()-startPlace;
             }
         }
         return -1;
