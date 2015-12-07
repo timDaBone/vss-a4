@@ -25,7 +25,7 @@ public class Table {
         this.lastPlace = lastPlace;
         this.forks = new ArrayList<>();
         this.places = new ArrayList<>();
-        for (int index = 0; index <= lastPlace - startPlace; index++) {
+        for (int index = startPlace; index <= lastPlace; index++) {
             Fork fork = new Fork(index);
             Place place = new Place(index);
             this.forks.add(fork);

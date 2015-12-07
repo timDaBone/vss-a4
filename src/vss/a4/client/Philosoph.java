@@ -61,7 +61,7 @@ public class Philosoph extends Thread {
                     sleeping();
                 }
             } catch (RemoteException e) {
-                //shouldRun = false;
+                shouldRun = false;
                 DistributionServer.logging("RemoteException at Philosoph-" + getIndex(), e);
                 try {
                     distributedClient.reportError();
@@ -86,6 +86,7 @@ public class Philosoph extends Thread {
     }
 
     private int enqueueToPlace() throws Exception {
+        DistributionServer.logging("Philosoph-" + this.getIndex() + " enqueues.");
         Place minPlace = table.getPlace(distributedClient.getStartPlace());
 
         for (Place place : table.getPlaces()) {
