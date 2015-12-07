@@ -227,4 +227,8 @@ public class DistributedClient implements Client {
         return this.firstPlace;
     }
 
+    void reportError() {
+        this.server.reportError();
+    }
+
 }

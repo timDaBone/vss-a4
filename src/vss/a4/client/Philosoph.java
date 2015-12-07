@@ -58,7 +58,8 @@ public class Philosoph extends Thread {
                     sleeping();
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                DistributionServer.logging("Error at Philosoph-" + getIndex(), e);
+                distributedClient.reportError();
             }
         }
     }

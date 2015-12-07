@@ -251,4 +251,9 @@ public class DistributionServer implements Server {
         return philosophsAndPlacesList;
     }
 
+    @Override
+    public void reportError() {
+        initClients();
+    }
+
 }

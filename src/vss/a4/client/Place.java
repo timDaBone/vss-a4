@@ -45,9 +45,7 @@ public class Place {
         if (tookPlace) {
             if (isEmpty()) {
                 empty = false;
-            } else {
-                throw new Exception("place" + this.getIndex() + " is not empty hashcode: " + this.hashCode());
-            }
+            } 
         }
         return tookPlace;
     }
@@ -62,8 +60,6 @@ public class Place {
         takePlace.acquire();
         if (isEmpty()) {
             empty = false;
-        } else {
-            throw new Exception("place" + this.getIndex() + " is not empty hashcode: " + this.hashCode());
         }
     }
 
