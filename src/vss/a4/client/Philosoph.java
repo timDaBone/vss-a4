@@ -46,9 +46,9 @@ public class Philosoph extends Thread {
                         thinking();
 
                         if (willBePunished) {
-                            System.out.println(this + " starts punishment");
+                            DistributionServer.logging(this + " starts punishment");
                             Thread.sleep(DistributedClient.PENALTY_TIME);
-                            System.out.println(this + " punishment over");
+                            DistributionServer.logging(this + " punishment over");
                             willBePunished = false;
                         }
                         int placeIndex = enqueueToPlace();
@@ -150,7 +150,7 @@ public class Philosoph extends Thread {
 
     @Override
     public String toString() {
-        return "Philosoph-" + this.getIndex();
+        return "Philosoph-" + this.getIndex() + " at Table " + table.hashCode();
     }
 
     void punish() {

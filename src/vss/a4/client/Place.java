@@ -46,7 +46,7 @@ public class Place {
             if (isEmpty()) {
                 empty = false;
             } else {
-                throw new Exception("place is not empty");
+                throw new Exception("place" + this.getIndex() + " is not empty hashcode: " + this.hashCode());
             }
         }
         return tookPlace;
@@ -59,12 +59,11 @@ public class Place {
      * @throws Exception
      */
     public void enqueue() throws Exception {
-        System.out.println(takePlace.getQueueLength());
         takePlace.acquire();
         if (isEmpty()) {
             empty = false;
         } else {
-            throw new Exception("place is not empty");
+            throw new Exception("place" + this.getIndex() + " is not empty hashcode: " + this.hashCode());
         }
     }
 

@@ -12,7 +12,7 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.List;  
 import java.util.Map;
 import vss.a4.exceptions.VssException;
 import vss.a4.server.DistributionServer;
@@ -24,7 +24,7 @@ import vss.a4.server.Server;
  */
 public class DistributedClient implements Client {
 
-    public final static long PENALTY_TIME = 10000;
+    public final static long PENALTY_TIME = 5000;
     public final static long THINKING_TIME = 100;
     public final static long SLEEPING_TIME = 100;
     static int MAXIMUM_EATING_DIFFERENCE_AVERAGE = 10;

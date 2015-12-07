@@ -123,6 +123,9 @@ public class DistributionServer implements Server {
 
             }
             
+            mainSupervisor.setClients(clients);
+            mainSupervisor.start();
+            
             try {
                 //stopClients();
 
@@ -147,8 +150,6 @@ public class DistributionServer implements Server {
                 initClients();
                 return;
             }
-            mainSupervisor.setClients(clients);
-            mainSupervisor.start();
         } catch (RemoteException ex) {
             Logger.getLogger(DistributionServer.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -167,7 +168,7 @@ public class DistributionServer implements Server {
     }
 
     public static void logging(String message) {
-        System.out.println(message +  System.currentTimeMillis());
+        System.out.println(message +  "\t\t\t" + System.currentTimeMillis());
     }
 
     public static void logging(String message, Exception ex) {
