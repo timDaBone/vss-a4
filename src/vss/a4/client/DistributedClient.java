@@ -42,6 +42,7 @@ public class DistributedClient implements Client {
     private int firstPlace;
     private Table table;
     private Supervisor supervisor;
+    private boolean notAlreadyReported;
 
     public List<Client> getClients() {
         return clients;
@@ -49,6 +50,7 @@ public class DistributedClient implements Client {
     List<Philosoph> philosophs;
 
     public DistributedClient(String serverIpAdress, String clientIpAdress, int registryPort) throws Exception {
+        this.notAlreadyReported = true;
         this.serverIpAdress = serverIpAdress;
         this.clientIpAdress = clientIpAdress;
         this.clients = new ArrayList<>();
@@ -109,6 +111,7 @@ public class DistributedClient implements Client {
 
     @Override
     public void init(int firstPhilosoph, int lastPhilosoph, List<Integer> eatingCounters, int firstPlace, int lastPlace, int placeCount) throws Exception {
+        this.notAlreadyReported = true;
         this.firstPhilosoph = firstPhilosoph;
         this.lastPhilosoph = lastPhilosoph;
         this.eatingCounters = eatingCounters;
@@ -228,7 +231,10 @@ public class DistributedClient implements Client {
     }
 
     void reportError() throws RemoteException {
-        this.server.reportError();
+        if(notAlreadyReported) {
+            this.server.reportError();
+            notAlreadyReported = false;
+        }
     }
 
 }
