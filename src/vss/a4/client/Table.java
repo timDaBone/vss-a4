@@ -21,6 +21,8 @@ public class Table {
     List<Place> places;
 
     public Table(int startPlace, int lastPlace) {
+        this.startPlace = startPlace;
+        this.lastPlace = lastPlace;
         this.forks = new ArrayList<>();
         this.places = new ArrayList<>();
         for (int index = 0; index <= lastPlace - startPlace; index++) {
@@ -54,7 +56,7 @@ public class Table {
     int tryEnqueue() throws Exception {
         for (Place place : getPlaces()) {
             if (place.tryEnqueue()) {
-                return place.getIndex()-startPlace;
+                return place.getIndex();
             }
         }
         return -1;
