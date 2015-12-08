@@ -130,14 +130,7 @@ public class DistributedClient implements Client {
     public void init(int firstPhilosoph, int lastPhilosoph, List<Integer> eatingCounters, int firstPlace, int lastPlace, int placeCount) throws Exception {
         DistributionServer.logging("Client init");
         if (!firstInit) {
-            DistributionServer.logging("Wait for all philos to stop at stopClient");
-            while (stoppedPhilosophs < this.lastPhilosoph - this.firstPhilosoph) {
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(DistributedClient.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
+            waitForPhilosophsStop();
         }
         DistributionServer.logging("All philos stopped at stopClient");
         this.notAlreadyReported = true;
@@ -189,10 +182,15 @@ public class DistributedClient implements Client {
         DistributionServer.logging("Client stops");
         this.shouldRun = false;
         this.supervisor.stopSupervisor();
+        waitForPhilosophsStop();
+    }
+
+    private void waitForPhilosophsStop() {
         DistributionServer.logging("Wait for all philos to stop at stopClient");
         if (!firstInit) {
 
             while (stoppedPhilosophs < this.lastPhilosoph - this.firstPhilosoph) {
+                DistributionServer.logging("Still waiting...");
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException ex) {
