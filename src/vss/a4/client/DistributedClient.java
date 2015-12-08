@@ -190,7 +190,7 @@ public class DistributedClient implements Client {
         if (!firstInit) {
 
             while (stoppedPhilosophs < this.lastPhilosoph - this.firstPhilosoph) {
-                DistributionServer.logging("Still waiting...");
+                DistributionServer.logging("Still waiting..." + stoppedPhilosophs);
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException ex) {
