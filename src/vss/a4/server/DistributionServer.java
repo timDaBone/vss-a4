@@ -63,9 +63,10 @@ public class DistributionServer implements Server {
         } catch (InterruptedException ex) {
             Logger.getLogger(DistributionServer.class.getName()).log(Level.SEVERE, null, ex);
         }
+        initClients(firstInit);
         this.firstInit = false;
         DistributionServer.logging("waiting time is over");
-        initClients(firstInit);
+        
     }
 
     private void stopClients() throws RemoteException {

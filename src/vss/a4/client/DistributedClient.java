@@ -12,7 +12,7 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;  
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -117,7 +117,7 @@ public class DistributedClient implements Client {
 
     @Override
     public void init(int firstPhilosoph, int lastPhilosoph, List<Integer> eatingCounters, int firstPlace, int lastPlace, int placeCount, boolean firstInit) throws Exception {
-        if(!firstInit) {
+        if (!firstInit) {
             DistributionServer.logging("Wait for all philos to stop at stopClient");
             while (stoppedPhilosophs < this.lastPhilosoph - this.firstPhilosoph) {
                 try {
@@ -153,9 +153,9 @@ public class DistributedClient implements Client {
     @Override
     public void startClient() throws RemoteException {
         synchronized (this) {
-        this.philosophs.clear();
-        // synchronizer because of ThreadState
-        
+            this.philosophs.clear();
+            // synchronizer because of ThreadState
+
             for (int index = this.firstPhilosoph; index <= this.lastPhilosoph; index++) {
                 // TODO EATINGCOUNTER ÜBERGEBEN
                 Philosoph philosoph = new Philosoph(table, index, SLEEPING_TIME, THINKING_TIME, this.eatingCounters.get(index), this);
@@ -165,25 +165,23 @@ public class DistributedClient implements Client {
             this.supervisor = new Supervisor(philosophs);
             this.supervisor.start();
         }
-        
-        
 
         DistributionServer.logging("Philosoph " + this + " started");
     }
 
     @Override
     public void stopClient(boolean firstInit) throws RemoteException {
-        synchronized(this) {
-            
-        for (Philosoph philosoph : philosophs) {
-            philosoph.stopPhilosoph();
-        }
+        synchronized (this) {
+
+            for (Philosoph philosoph : philosophs) {
+                philosoph.stopPhilosoph();
+            }
         }
         this.supervisor.stopSupervisor();
         DistributionServer.logging("Wait for all philos to stop at stopClient");
-        if(!firstInit) {
-            
-        while(stoppedPhilosophs < this.lastPhilosoph - this.firstPhilosoph) {
+        if (!firstInit) {
+
+            while (stoppedPhilosophs < this.lastPhilosoph - this.firstPhilosoph) {
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException ex) {
@@ -265,14 +263,14 @@ public class DistributedClient implements Client {
     }
 
     void reportError() throws RemoteException {
-        if(notAlreadyReported) {
+        if (notAlreadyReported) {
             this.server.reportError();
             notAlreadyReported = false;
         }
     }
 
     void stopped() {
-        synchronized(this) {
+        synchronized (this) {
             this.stoppedPhilosophs++;
         }
     }
