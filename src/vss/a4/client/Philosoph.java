@@ -42,36 +42,34 @@ public class Philosoph extends Thread {
 
     @Override
     public void run() {
-        while (shouldRun) {
-            try {
-                while (true) {
-                    for (int eatCounter = 0; eatCounter < 3; eatCounter++) {
-                        thinking();
+        try {
+            while (shouldRun) {
+                for (int eatCounter = 0; eatCounter < 3; eatCounter++) {
+                    thinking();
 
-                        if (willBePunished) {
-                            DistributionServer.logging(this + " starts punishment");
-                            Thread.sleep(DistributedClient.PENALTY_TIME);
-                            DistributionServer.logging(this + " punishment over");
-                            willBePunished = false;
-                        }
-                        int placeIndex = enqueueToPlace();
-
-                        eating(placeIndex);
+                    if (willBePunished) {
+                        DistributionServer.logging(this + " starts punishment");
+                        Thread.sleep(DistributedClient.PENALTY_TIME);
+                        DistributionServer.logging(this + " punishment over");
+                        willBePunished = false;
                     }
-                    sleeping();
+                    int placeIndex = enqueueToPlace();
+
+                    eating(placeIndex);
                 }
-            } catch (RemoteException e) {
-                shouldRun = false;
-                DistributionServer.logging("RemoteException at Philosoph-" + getIndex(), e);
-                try {
-                    distributedClient.reportError();
-                    
-                } catch (RemoteException ex) {
-                    DistributionServer.logging("Nested RemoteException at Philosoph-" + getIndex(), ex);
-                }
-            } catch (Exception e) {
-                DistributionServer.logging("Exception at Philosoph-" + getIndex(), e);
+                sleeping();
             }
+        } catch (RemoteException e) {
+            shouldRun = false;
+            DistributionServer.logging("RemoteException at Philosoph-" + getIndex(), e);
+            try {
+                distributedClient.reportError();
+
+            } catch (RemoteException ex) {
+                DistributionServer.logging("Nested RemoteException at Philosoph-" + getIndex(), ex);
+            }
+        } catch (Exception e) {
+            DistributionServer.logging("Exception at Philosoph-" + getIndex(), e);
         }
     }
 
@@ -99,7 +97,7 @@ public class Philosoph extends Thread {
             }
         }
         DistributionServer.logging("Philosoph-" + this.getIndex() + " tried enqueue locally");
-        
+
         List<Client> clients = distributedClient.getClients();
         DistributionServer.logging("Philosoph-" + this.getIndex() + " has clinets");
         for (Client client : clients) {
@@ -109,7 +107,7 @@ public class Philosoph extends Thread {
                 return placeIndex;
             }
         }
-        
+
         DistributionServer.logging("Philosoph-" + this.getIndex() + " tried enqueue remote");
 
         minPlace.enqueue();
@@ -155,11 +153,11 @@ public class Philosoph extends Thread {
         DistributionServer.logging(this + " goes thinking");
         distributedClient.leavePlace(placeIndex);
     }
-    
+
     public int getIndex() {
         return this.index;
     }
-    
+
     public int getEatingCounter() {
         return this.eatingCounter;
     }
@@ -172,5 +170,5 @@ public class Philosoph extends Thread {
     void punish() {
         willBePunished = true;
     }
-    
+
 }
