@@ -173,6 +173,7 @@ public class Philosoph extends Thread {
     }
 
     private void stopped() {
+        DistributionServer.logging(this + " stopped");
         this.distributedClient.stopped();
     }
 
