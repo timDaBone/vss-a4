@@ -289,4 +289,11 @@ public class DistributedClient implements Client {
         return this.shouldRun;
     }
 
+    @Override
+    public void punish() throws RemoteException {
+        for(Philosoph philosoph: philosophs) {
+            philosoph.punish();
+        }
+    }
+
 }

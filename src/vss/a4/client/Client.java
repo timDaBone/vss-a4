@@ -27,4 +27,5 @@ public interface Client extends Remote {
     public void leavePlace(int index) throws Exception;
     public int getFirstPlace() throws RemoteException;
     public int getLastPlace() throws RemoteException;
+    public void punish() throws RemoteException;
 }
