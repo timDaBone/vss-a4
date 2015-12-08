@@ -28,14 +28,12 @@ public class DistributionServer implements Server {
     private int placeCount;
     private MainSupervisor mainSupervisor;
     List<Integer> philosophEatingCounters;
-    private boolean firstInit;
 
     public DistributionServer(boolean debug) throws Exception {
         this.clientIpAdresses = new ArrayList<>();
         this.clients = new ArrayList<>();
         this.mainSupervisor = null;
         this.DEBUG = debug;
-        this.firstInit = true;
         DistributionServer.logging("DEBUGMODUS", null);
 
         // Get registry and bind server
@@ -57,14 +55,7 @@ public class DistributionServer implements Server {
     public void initServer(int placeCount, int philliCount) {
         this.placeCount = placeCount;
         this.philosophCount = philliCount;
-        try {
-            DistributionServer.logging("waiting time is over");
-            Thread.sleep(10000);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(DistributionServer.class.getName()).log(Level.SEVERE, null, ex);
-        }
         initClients();
-        this.firstInit = false;
         DistributionServer.logging("waiting time is over");
         
     }
@@ -78,7 +69,7 @@ public class DistributionServer implements Server {
 
     synchronized void initClients() {
         DistributionServer.logging("Start init clients");
-        while (!initializationProcess(firstInit)) {
+        while (!initializationProcess()) {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException ex) {
@@ -89,7 +80,7 @@ public class DistributionServer implements Server {
 
     }
 
-    boolean initializationProcess(boolean firstInit) {
+    boolean initializationProcess() {
         String actualIpAdress = "";
         try {
             this.clients.clear();
@@ -186,10 +177,10 @@ public class DistributionServer implements Server {
     public void addClient(String ipAdress) {
         DistributionServer.logging("adding client " + ipAdress, null);
         this.clientIpAdresses.add(ipAdress);
-        if (!firstInit) {
-            DistributionServer.logging("Init clinets now");
-            initClients();
-        }
+        
+        DistributionServer.logging("Init clinets now");
+        initClients();
+            
     }
 
     public static void logging(String message) {

@@ -64,13 +64,14 @@ public class DistributedClient implements Client {
         this.firstInit = true;
 
         // Setup RMI to server
+        DistributionServer.logging("Lookup rmi");
         this.server = (Server) Naming.lookup("rmi://" + serverIpAdress + "/server");
 
         // Initiate local RMI
         Registry registry = LocateRegistry.getRegistry(registryPort);
 
         String[] alreadyBindList = registry.list();
-
+        DistributionServer.logging("RMI done");
         boolean bind = true;
         for (String alreadyBind : alreadyBindList) {
             System.out.println(alreadyBind);
@@ -90,8 +91,11 @@ public class DistributedClient implements Client {
 
     public static void main(String[] args) {
         try {
+            DistributionServer.logging("Main started");
             DistributedClient distributedClient = new DistributedClient(args[0], args[1], Integer.parseInt(args[2]), Boolean.parseBoolean(args[3]));
+            DistributionServer.logging("add client");
             distributedClient.server.addClient(distributedClient.clientIpAdress);
+            DistributionServer.logging("Added client");
             System.out.println("Client connected to Server");
         } catch (Exception ex) {
             ex.printStackTrace();
