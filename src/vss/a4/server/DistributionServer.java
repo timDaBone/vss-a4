@@ -71,7 +71,7 @@ public class DistributionServer implements Server {
     private void stopClients() throws RemoteException {
         DistributionServer.logging("stopClients()");
         for (Client client : clients) {
-            client.stopClient();
+            client.stopClient(firstInit);
         }
     }
 

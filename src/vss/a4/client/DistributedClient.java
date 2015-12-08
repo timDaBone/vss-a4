@@ -172,7 +172,7 @@ public class DistributedClient implements Client {
     }
 
     @Override
-    public void stopClient() throws RemoteException {
+    public void stopClient(boolean firstInit) throws RemoteException {
         synchronized(this) {
             
         for (Philosoph philosoph : philosophs) {
@@ -181,11 +181,14 @@ public class DistributedClient implements Client {
         }
         this.supervisor.stopSupervisor();
         DistributionServer.logging("Wait for all philos to stop at stopClient");
+        if(!firstInit) {
+            
         while(stoppedPhilosophs < this.lastPhilosoph - this.firstPhilosoph) {
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(DistributedClient.class.getName()).log(Level.SEVERE, null, ex);
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(DistributedClient.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         }
         DistributionServer.logging("All philos stopped at stopClient");

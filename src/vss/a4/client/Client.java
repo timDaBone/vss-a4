@@ -19,7 +19,7 @@ public interface Client extends Remote {
     public void setClients(List<String> clientIpAdresses) throws VssException, RemoteException;
     public void init(int firstPhilosoph, int lastPhilosoph, List<Integer> eatingCounters, int firstPlace, int lastPlace, int placeCount, boolean firstInit) throws Exception;
     public void startClient() throws RemoteException;
-    public void stopClient() throws RemoteException;
+    public void stopClient(boolean firstInit) throws RemoteException;
     public Map<Integer, Integer> getPhiloCount() throws Exception;
     public int tryEnqueue() throws Exception;
     public void takeFork(int index) throws Exception;
