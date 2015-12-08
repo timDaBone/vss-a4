@@ -46,6 +46,7 @@ public class DistributedClient implements Client {
     private Supervisor supervisor;
     private boolean notAlreadyReported;
     private int stoppedPhilosophs;
+    private boolean firstInit;
 
     public List<Client> getClients() {
         return clients;
@@ -60,6 +61,7 @@ public class DistributedClient implements Client {
         this.clients = new ArrayList<>();
         this.philosophs = new ArrayList<>();
         this.stoppedPhilosophs = -1;
+        this.firstInit = true;
 
         // Setup RMI to server
         this.server = (Server) Naming.lookup("rmi://" + serverIpAdress + "/server");
@@ -116,7 +118,7 @@ public class DistributedClient implements Client {
     }
 
     @Override
-    public void init(int firstPhilosoph, int lastPhilosoph, List<Integer> eatingCounters, int firstPlace, int lastPlace, int placeCount, boolean firstInit) throws Exception {
+    public void init(int firstPhilosoph, int lastPhilosoph, List<Integer> eatingCounters, int firstPlace, int lastPlace, int placeCount) throws Exception {
         if (!firstInit) {
             DistributionServer.logging("Wait for all philos to stop at stopClient");
             while (stoppedPhilosophs < this.lastPhilosoph - this.firstPhilosoph) {
@@ -152,6 +154,7 @@ public class DistributedClient implements Client {
 
     @Override
     public void startClient() throws RemoteException {
+        
         synchronized (this) {
             this.philosophs.clear();
             // synchronizer because of ThreadState
@@ -165,12 +168,12 @@ public class DistributedClient implements Client {
             this.supervisor = new Supervisor(philosophs);
             this.supervisor.start();
         }
-
+        this.firstInit = false;
         DistributionServer.logging("Philosoph " + this + " started");
     }
 
     @Override
-    public void stopClient(boolean firstInit) throws RemoteException {
+    public void stopClient() throws RemoteException {
         synchronized (this) {
 
             for (Philosoph philosoph : philosophs) {

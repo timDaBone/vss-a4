@@ -72,7 +72,7 @@ public class MainSupervisor extends Thread {
             } catch (RemoteException ex) {
                 DistributionServer.logging("MainSupervisor has Connection Problem with Client", ex);
                 shoudRun = false;
-                distributionServer.initClients(false);
+                distributionServer.initClients();
             } catch (Exception ex) {
                 DistributionServer.logging("MainSupervisor has ConnectionProbblem with Client", ex);
             }

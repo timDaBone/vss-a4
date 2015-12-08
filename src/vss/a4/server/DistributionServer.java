@@ -63,7 +63,7 @@ public class DistributionServer implements Server {
         } catch (InterruptedException ex) {
             Logger.getLogger(DistributionServer.class.getName()).log(Level.SEVERE, null, ex);
         }
-        initClients(firstInit);
+        initClients();
         this.firstInit = false;
         DistributionServer.logging("waiting time is over");
         
@@ -72,11 +72,11 @@ public class DistributionServer implements Server {
     private void stopClients() throws RemoteException {
         DistributionServer.logging("stopClients()");
         for (Client client : clients) {
-            client.stopClient(firstInit);
+            client.stopClient();
         }
     }
 
-    synchronized void initClients(boolean firstInit) {
+    synchronized void initClients() {
 
         while (!initializationProcess(firstInit)) {
             try {
@@ -137,7 +137,7 @@ public class DistributionServer implements Server {
                 int[] philosophsAndPlaces = philosophsAndPlacesList.get(clientNumber);
                 // todo EATINGCOUNTERS
                 System.out.println(philosophsAndPlaces[0] + " " + philosophsAndPlaces[1] + " " + philosophsAndPlaces[2] + " " + philosophsAndPlaces[3]);
-                client.init(philosophsAndPlaces[0], philosophsAndPlaces[1], mainSupervisor.getEatingCounters(), philosophsAndPlaces[2], philosophsAndPlaces[3], placeCount, firstInit);
+                client.init(philosophsAndPlaces[0], philosophsAndPlaces[1], mainSupervisor.getEatingCounters(), philosophsAndPlaces[2], philosophsAndPlaces[3], placeCount);
                 clientNumber++;
             }
 
@@ -187,7 +187,7 @@ public class DistributionServer implements Server {
         this.clientIpAdresses.add(ipAdress);
         if (!firstInit) {
             DistributionServer.logging("Init clinets now");
-            initClients(false);
+            initClients();
         }
     }
 
@@ -278,7 +278,7 @@ public class DistributionServer implements Server {
     @Override
     public void reportError() {
         DistributionServer.logging("REPORT ERROR");
-        initClients(false);
+        initClients();
     }
 
 }
