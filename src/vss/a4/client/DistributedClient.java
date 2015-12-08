@@ -47,6 +47,7 @@ public class DistributedClient implements Client {
     private boolean notAlreadyReported;
     private int stoppedPhilosophs;
     private boolean firstInit;
+    private boolean shouldRun;
 
     public List<Client> getClients() {
         return clients;
@@ -62,6 +63,7 @@ public class DistributedClient implements Client {
         this.philosophs = new ArrayList<>();
         this.stoppedPhilosophs = -1;
         this.firstInit = true;
+        this.shouldRun = true;
 
         // Setup RMI to server
         DistributionServer.logging("Lookup rmi");
@@ -147,6 +149,7 @@ public class DistributedClient implements Client {
         this.placeCount = placeCount;
         this.stoppedPhilosophs = -1;
         this.table = new Table(firstPlace, lastPlace);
+        this.shouldRun = true;
         DistributionServer.logging(firstPhilosoph + " " + lastPhilosoph + " " + firstPlace + " " + this.lastPlace);
         DistributionServer.logging("Philosoph " + this + " initialized");
     }
@@ -184,12 +187,7 @@ public class DistributedClient implements Client {
     @Override
     public void stopClient() throws RemoteException {
         DistributionServer.logging("Client stops");
-        synchronized (this) {
-
-            for (Philosoph philosoph : philosophs) {
-                philosoph.stopPhilosoph();
-            }
-        }
+        this.shouldRun = false;
         this.supervisor.stopSupervisor();
         DistributionServer.logging("Wait for all philos to stop at stopClient");
         if (!firstInit) {
@@ -286,6 +284,10 @@ public class DistributedClient implements Client {
         synchronized (this) {
             this.stoppedPhilosophs++;
         }
+    }
+
+    boolean shouldRun() {
+        return this.shouldRun;
     }
 
 }

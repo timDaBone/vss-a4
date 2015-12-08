@@ -43,7 +43,7 @@ public class Philosoph extends Thread {
     @Override
     public void run() {
         try {
-            while (shouldRun) {
+            while (distributedClient.shouldRun()) {
                 for (int eatCounter = 0; eatCounter < 3; eatCounter++) {
                     thinking();
 
@@ -72,11 +72,6 @@ public class Philosoph extends Thread {
             DistributionServer.logging("Exception at Philosoph-" + getIndex(), e);
         }
         stopped();
-    }
-
-    void stopPhilosoph() {
-        DistributionServer.logging("Philosoph " + this + " stopped", null);
-        shouldRun = false;
     }
 
     private void thinking() throws InterruptedException {

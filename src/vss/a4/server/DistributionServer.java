@@ -8,6 +8,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -57,15 +58,24 @@ public class DistributionServer implements Server {
         this.philosophCount = philliCount;
         initClients();
         DistributionServer.logging("waiting time is over");
-        
+
     }
 
     private void stopClients() throws RemoteException {
         DistributionServer.logging("stopClients()");
-        for (Client client : clients) {
-            DistributionServer.logging("stopClient" + clients.size());
-            client.stopClient();
+
+        for (Iterator<Client> iterator = clients.iterator(); iterator.hasNext();) {
+            Client client = iterator.next();
+            try {
+                DistributionServer.logging("stopClient");
+                client.stopClient();
+            } catch (RemoteException e) {
+                DistributionServer.logging("remove client");
+                DistributionServer.logging("stopClient", e);
+                iterator.remove();
+            }
         }
+        DistributionServer.logging("Stopped all clients");
     }
 
     synchronized void initClients() {
@@ -84,7 +94,7 @@ public class DistributionServer implements Server {
     boolean initializationProcess() {
         String actualIpAdress = "";
         try {
-            
+
             stopClients();
             this.clients.clear();
             if (mainSupervisor != null) {
@@ -128,7 +138,7 @@ public class DistributionServer implements Server {
             int clientNumber = 0;
             DistributionServer.logging("Init all clients now, client.size(): " + clients.size());
             for (Client client : clients) {
-                
+
                 int[] philosophsAndPlaces = philosophsAndPlacesList.get(clientNumber);
                 // todo EATINGCOUNTERS
                 DistributionServer.logging("#" + clientNumber + "#" + philosophsAndPlaces[0] + " " + philosophsAndPlaces[1] + " " + philosophsAndPlaces[2] + " " + philosophsAndPlaces[3]);
@@ -181,10 +191,10 @@ public class DistributionServer implements Server {
     public void addClient(String ipAdress) {
         DistributionServer.logging("adding client " + ipAdress, null);
         this.clientIpAdresses.add(ipAdress);
-        
+
         DistributionServer.logging("Init clinets now");
         initClients();
-            
+
     }
 
     public static void logging(String message) {

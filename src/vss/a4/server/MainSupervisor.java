@@ -66,6 +66,7 @@ public class MainSupervisor extends Thread {
                         }
                         DistributionServer.logging("MainSupervisor get eating counter " + philoCount);
                     }
+                    DistributionServer.logging("###############################");
                 }
             } catch (ConcurrentModificationException ex) {
                 DistributionServer.logging("MainSupervisor gets ModificationException with List " + clients, ex);
