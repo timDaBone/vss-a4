@@ -180,6 +180,7 @@ public class DistributedClient implements Client {
     @Override
     public void stopClient() throws RemoteException {
         DistributionServer.logging("Client stops");
+        this.table.releaseAll();
         this.shouldRun = false;
         this.supervisor.stopSupervisor();
         waitForPhilosophsStop();
