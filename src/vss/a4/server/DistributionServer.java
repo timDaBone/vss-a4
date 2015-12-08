@@ -65,7 +65,7 @@ public class DistributionServer implements Server {
         }
         this.firstInit = false;
         DistributionServer.logging("waiting time is over");
-        initClients();
+        initClients(firstInit);
     }
 
     private void stopClients() throws RemoteException {
@@ -75,9 +75,9 @@ public class DistributionServer implements Server {
         }
     }
 
-    synchronized void initClients() {
+    synchronized void initClients(boolean firstInit) {
 
-        while (!initializationProcess()) {
+        while (!initializationProcess(firstInit)) {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException ex) {
@@ -87,7 +87,7 @@ public class DistributionServer implements Server {
 
     }
 
-    boolean initializationProcess() {
+    boolean initializationProcess(boolean firstInit) {
         String actualIpAdress = "";
         try {
             this.clients.clear();
@@ -136,7 +136,7 @@ public class DistributionServer implements Server {
                 int[] philosophsAndPlaces = philosophsAndPlacesList.get(clientNumber);
                 // todo EATINGCOUNTERS
                 System.out.println(philosophsAndPlaces[0] + " " + philosophsAndPlaces[1] + " " + philosophsAndPlaces[2] + " " + philosophsAndPlaces[3]);
-                client.init(philosophsAndPlaces[0], philosophsAndPlaces[1], mainSupervisor.getEatingCounters(), philosophsAndPlaces[2], philosophsAndPlaces[3], placeCount);
+                client.init(philosophsAndPlaces[0], philosophsAndPlaces[1], mainSupervisor.getEatingCounters(), philosophsAndPlaces[2], philosophsAndPlaces[3], placeCount, firstInit);
                 clientNumber++;
             }
 
@@ -186,7 +186,7 @@ public class DistributionServer implements Server {
         this.clientIpAdresses.add(ipAdress);
         if (!firstInit) {
             DistributionServer.logging("Init clinets now");
-            initClients();
+            initClients(false);
         }
     }
 
@@ -277,7 +277,7 @@ public class DistributionServer implements Server {
     @Override
     public void reportError() {
         DistributionServer.logging("REPORT ERROR");
-        initClients();
+        initClients(false);
     }
 
 }

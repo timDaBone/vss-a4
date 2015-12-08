@@ -116,13 +116,15 @@ public class DistributedClient implements Client {
     }
 
     @Override
-    public void init(int firstPhilosoph, int lastPhilosoph, List<Integer> eatingCounters, int firstPlace, int lastPlace, int placeCount) throws Exception {
-        DistributionServer.logging("Wait for all philos to stop at stopClient");
-        while(stoppedPhilosophs < this.lastPhilosoph - this.firstPhilosoph) {
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(DistributedClient.class.getName()).log(Level.SEVERE, null, ex);
+    public void init(int firstPhilosoph, int lastPhilosoph, List<Integer> eatingCounters, int firstPlace, int lastPlace, int placeCount, boolean firstInit) throws Exception {
+        if(!firstInit) {
+            DistributionServer.logging("Wait for all philos to stop at stopClient");
+            while (stoppedPhilosophs < this.lastPhilosoph - this.firstPhilosoph) {
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(DistributedClient.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         }
         DistributionServer.logging("All philos stopped at stopClient");
