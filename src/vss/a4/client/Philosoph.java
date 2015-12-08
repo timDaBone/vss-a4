@@ -71,6 +71,7 @@ public class Philosoph extends Thread {
         } catch (Exception e) {
             DistributionServer.logging("Exception at Philosoph-" + getIndex(), e);
         }
+        stopped();
     }
 
     void stopPhilosoph() {
@@ -169,6 +170,10 @@ public class Philosoph extends Thread {
 
     void punish() {
         willBePunished = true;
+    }
+
+    private void stopped() {
+        this.distributedClient.stopped();
     }
 
 }

@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;  
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import vss.a4.exceptions.VssException;
 import vss.a4.server.DistributionServer;
 import vss.a4.server.Server;
@@ -43,6 +45,7 @@ public class DistributedClient implements Client {
     private Table table;
     private Supervisor supervisor;
     private boolean notAlreadyReported;
+    private int stoppedPhilosophs;
 
     public List<Client> getClients() {
         return clients;
@@ -56,6 +59,7 @@ public class DistributedClient implements Client {
         this.clientIpAdress = clientIpAdress;
         this.clients = new ArrayList<>();
         this.philosophs = new ArrayList<>();
+        this.stoppedPhilosophs = -1;
 
         // Setup RMI to server
         this.server = (Server) Naming.lookup("rmi://" + serverIpAdress + "/server");
@@ -120,6 +124,7 @@ public class DistributedClient implements Client {
         this.firstPlace = firstPlace;
         this.lastPlace = lastPlace;
         this.placeCount = placeCount;
+        this.stoppedPhilosophs = -1;
         this.table = new Table(firstPlace, lastPlace);
         DistributionServer.logging(firstPhilosoph + " " + lastPhilosoph + " " + firstPlace + " " + this.lastPlace);
         DistributionServer.logging("Philosoph " + this + " initialized");
@@ -160,6 +165,13 @@ public class DistributedClient implements Client {
             philosoph.stopPhilosoph();
         }
         this.supervisor.stopSupervisor();
+        while(stoppedPhilosophs < this.lastPhilosoph - this.firstPhilosoph) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(DistributedClient.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
 
     @Override
@@ -236,6 +248,12 @@ public class DistributedClient implements Client {
         if(notAlreadyReported) {
             this.server.reportError();
             notAlreadyReported = false;
+        }
+    }
+
+    void stopped() {
+        synchronized(this) {
+            this.stoppedPhilosophs++;
         }
     }
 
