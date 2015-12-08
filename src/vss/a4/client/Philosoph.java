@@ -62,12 +62,12 @@ public class Philosoph extends Thread {
         } catch (RemoteException e) {
             shouldRun = false;
             DistributionServer.logging("RemoteException at Philosoph-" + getIndex(), e);
-            try {
+            /*try {
                 distributedClient.reportError();
 
             } catch (RemoteException ex) {
                 DistributionServer.logging("Nested RemoteException at Philosoph-" + getIndex(), ex);
-            }
+            }*/
         } catch (Exception e) {
             DistributionServer.logging("Exception at Philosoph-" + getIndex(), e);
         }

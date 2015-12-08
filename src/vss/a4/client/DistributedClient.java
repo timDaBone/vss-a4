@@ -105,10 +105,12 @@ public class DistributedClient implements Client {
 
     @Override
     public void setClients(List<String> clientIpAdresses) throws VssException {
+        DistributionServer.logging("Set clients");
         // Cient behält nicht erreichbaren Client in Liste ?!?!
         this.clients.clear();
         for (String ipAdress : clientIpAdresses) {
             if (!ipAdress.equals(this.clientIpAdress)) {
+                 DistributionServer.logging("Set client " + ipAdress);
                 try {
                     clients.add((Client) Naming.lookup("rmi://" + ipAdress + "/client"));
                 } catch (RemoteException ex) {
@@ -119,6 +121,7 @@ public class DistributedClient implements Client {
                 }
             }
         }
+        DistributionServer.logging("Set clients done");
     }
 
     @Override

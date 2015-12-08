@@ -63,6 +63,7 @@ public class DistributionServer implements Server {
     private void stopClients() throws RemoteException {
         DistributionServer.logging("stopClients()");
         for (Client client : clients) {
+            DistributionServer.logging("stopClient" + clients.size());
             client.stopClient();
         }
     }
@@ -83,9 +84,9 @@ public class DistributionServer implements Server {
     boolean initializationProcess() {
         String actualIpAdress = "";
         try {
-            this.clients.clear();
+            
             stopClients();
-
+            this.clients.clear();
             if (mainSupervisor != null) {
                 mainSupervisor.stopMainSupervisor();
             }
@@ -125,12 +126,15 @@ public class DistributionServer implements Server {
 
             // todo verteilung über die clients starten
             int clientNumber = 0;
+            DistributionServer.logging("Init all clients now, client.size(): " + clients.size());
             for (Client client : clients) {
+                
                 int[] philosophsAndPlaces = philosophsAndPlacesList.get(clientNumber);
                 // todo EATINGCOUNTERS
-                System.out.println(philosophsAndPlaces[0] + " " + philosophsAndPlaces[1] + " " + philosophsAndPlaces[2] + " " + philosophsAndPlaces[3]);
+                DistributionServer.logging("#" + clientNumber + "#" + philosophsAndPlaces[0] + " " + philosophsAndPlaces[1] + " " + philosophsAndPlaces[2] + " " + philosophsAndPlaces[3]);
                 client.init(philosophsAndPlaces[0], philosophsAndPlaces[1], mainSupervisor.getEatingCounters(), philosophsAndPlaces[2], philosophsAndPlaces[3], placeCount);
                 clientNumber++;
+                DistributionServer.logging("Client size now: " + clients.size());
             }
 
             for (Client client : clients) {
