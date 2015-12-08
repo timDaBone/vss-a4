@@ -22,7 +22,7 @@ import vss.a4.client.Client;
  */
 public class MainSupervisor extends Thread {
 
-    private static int GLOBAL_MAX_EATING_DIFFERENCE = 50;
+    private static int GLOBAL_MAX_EATING_DIFFERENCE = 20;
 
     private final List<Integer> philosophEatingCounters;
     private boolean shoudRun = true;
@@ -92,6 +92,7 @@ public class MainSupervisor extends Thread {
                     for (Entry<Client,Integer> client : clients.entrySet()) {
                         if(client.getValue() >= averageAllEatingCount + MainSupervisor.GLOBAL_MAX_EATING_DIFFERENCE) {
                             client.getKey().punish();
+                            DistributionServer.logging("PUUNNNIIISHMEEENNNNTTT");
                         }
                     }
                     
