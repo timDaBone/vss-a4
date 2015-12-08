@@ -8,6 +8,7 @@ package vss.a4.client;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
+import vss.a4.server.DistributionServer;
 
 /**
  *
@@ -60,6 +61,17 @@ public class Table {
             }
         }
         return -1;
+    }
+    
+    public void releaseAll() {
+        DistributionServer.logging("Release all");
+        for(Place place: this.places) {
+            place.leave();
+        }
+        for(Fork fork: this.forks) {
+            fork.passBack();
+        }
+        DistributionServer.logging("All released");
     }
 
 }
