@@ -88,7 +88,7 @@ public class Philosoph extends Thread {
     private int enqueueToPlace() throws Exception {
         DistributionServer.logging("Philosoph-" + this.getIndex() + " enqueues.");
         Place minPlace = table.getPlace(distributedClient.getStartPlace());
-
+        DistributionServer.logging("Philosoph-" + this.getIndex() + " Has min place");
         for (Place place : table.getPlaces()) {
             if (place.tryEnqueue()) {
                 System.out.println(this + " is enqueued at local place " + place.getIndex());
@@ -98,9 +98,10 @@ public class Philosoph extends Thread {
                 minPlace = place;
             }
         }
-
+        DistributionServer.logging("Philosoph-" + this.getIndex() + " tried enqueue locally");
+        
         List<Client> clients = distributedClient.getClients();
-
+        DistributionServer.logging("Philosoph-" + this.getIndex() + " has clinets");
         for (Client client : clients) {
             int placeIndex = client.tryEnqueue();
             if (placeIndex >= 0) {
@@ -108,6 +109,8 @@ public class Philosoph extends Thread {
                 return placeIndex;
             }
         }
+        
+        DistributionServer.logging("Philosoph-" + this.getIndex() + " tried enqueue remote");
 
         minPlace.enqueue();
         System.out.println(this + " is enqueued at local minPlace " + minPlace.getIndex());

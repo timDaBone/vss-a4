@@ -45,7 +45,7 @@ public class UserInterface extends Thread {
                 int philliCount = Integer.parseInt(startConfigParts[1]);
                 //System.out.println("Connect Clients and press Enter if all Clients connected ... ");
                 //reader.readLine();
-                server.initServer(placeCount, philliCount, firstInit);
+                server.initServer(placeCount, philliCount);
                 firstInit = false;
             } catch (Exception e) {
                 DistributionServer.logging("IOException in UserInterface", e);

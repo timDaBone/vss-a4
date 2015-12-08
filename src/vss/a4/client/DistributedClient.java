@@ -49,7 +49,8 @@ public class DistributedClient implements Client {
     }
     List<Philosoph> philosophs;
 
-    public DistributedClient(String serverIpAdress, String clientIpAdress, int registryPort) throws Exception {
+    public DistributedClient(String serverIpAdress, String clientIpAdress, int registryPort, boolean DEBUG) throws Exception {
+        DistributionServer.DEBUG = DEBUG;
         this.notAlreadyReported = true;
         this.serverIpAdress = serverIpAdress;
         this.clientIpAdress = clientIpAdress;
@@ -83,7 +84,7 @@ public class DistributedClient implements Client {
 
     public static void main(String[] args) {
         try {
-            DistributedClient distributedClient = new DistributedClient(args[0], args[1], Integer.parseInt(args[2]));
+            DistributedClient distributedClient = new DistributedClient(args[0], args[1], Integer.parseInt(args[2]), Boolean.parseBoolean(args[3]));
             distributedClient.server.addClient(distributedClient.clientIpAdress);
             System.out.println("Client connected to Server");
         } catch (Exception ex) {
@@ -95,6 +96,7 @@ public class DistributedClient implements Client {
     @Override
     public void setClients(List<String> clientIpAdresses) throws VssException {
         // Cient behält nicht erreichbaren Client in Liste ?!?!
+        this.clients.clear();
         for (String ipAdress : clientIpAdresses) {
             if (!ipAdress.equals(this.clientIpAdress)) {
                 try {

@@ -20,7 +20,7 @@ import vss.a4.exceptions.VssException;
  */
 public class DistributionServer implements Server {
 
-    private static boolean DEBUG;
+    public static boolean DEBUG;
 
     List<String> clientIpAdresses;
     List<Client> clients;
@@ -28,12 +28,14 @@ public class DistributionServer implements Server {
     private int placeCount;
     private MainSupervisor mainSupervisor;
     List<Integer> philosophEatingCounters;
+    private boolean firstInit;
 
     public DistributionServer(boolean debug) throws Exception {
         this.clientIpAdresses = new ArrayList<>();
         this.clients = new ArrayList<>();
         this.mainSupervisor = null;
         this.DEBUG = debug;
+        this.firstInit = true;
         DistributionServer.logging("DEBUGMODUS", null);
 
         // Get registry and bind server
@@ -52,9 +54,17 @@ public class DistributionServer implements Server {
         }
     }
 
-    public void initServer(int placeCount, int philliCount, boolean firstInit) {
+    public void initServer(int placeCount, int philliCount) {
         this.placeCount = placeCount;
         this.philosophCount = philliCount;
+        try {
+            DistributionServer.logging("waiting time is over");
+            Thread.sleep(10000);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(DistributionServer.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        this.firstInit = false;
+        DistributionServer.logging("waiting time is over");
         initClients();
     }
 
@@ -67,19 +77,19 @@ public class DistributionServer implements Server {
 
     synchronized void initClients() {
 
-            while(!initializationProcess()) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(DistributionServer.class.getName()).log(Level.SEVERE, null, ex);
-                }
+        while (!initializationProcess()) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(DistributionServer.class.getName()).log(Level.SEVERE, null, ex);
             }
-        
+        }
+
     }
-    
+
     boolean initializationProcess() {
         String actualIpAdress = "";
-        try{
+        try {
             this.clients.clear();
             stopClients();
 
@@ -90,21 +100,20 @@ public class DistributionServer implements Server {
             DistributionServer.logging("Client IP-List " + clientIpAdresses);
             DistributionServer.logging("Client Listsize " + clients.size());
             DistributionServer.logging("EatingCounters on Server " + this.philosophEatingCounters);
-            
 
             for (String ipAdress : clientIpAdresses) {
                 actualIpAdress = ipAdress;
                 DistributionServer.logging("Adding IP " + ipAdress, null);
                 Client client = null;
-                    client = (Client) Naming.lookup("rmi://" + ipAdress + "/client");
+                client = (Client) Naming.lookup("rmi://" + ipAdress + "/client");
 
                 DistributionServer.logging("Working on ipAdress " + ipAdress, null);
                 //DistributionServer.logging("Working on ipAdress " + client, null);
                 if (client != null) {
-                   
-                        clients.add(client);
-                        client.setClients(clientIpAdresses);
-                    
+
+                    clients.add(client);
+                    client.setClients(clientIpAdresses);
+
                 }
             }
             actualIpAdress = "";
@@ -115,56 +124,55 @@ public class DistributionServer implements Server {
                 mainSupervisor = new MainSupervisor(this, mainSupervisor.getEatingCounters(), philosophCount);
 
             }
-            
+
             mainSupervisor.setClients(clients);
             mainSupervisor.start();
-            
 
-                List<int[]> philosophsAndPlacesList = calculateDistribution();
+            List<int[]> philosophsAndPlacesList = calculateDistribution();
 
-                // todo verteilung über die clients starten
-                int clientNumber = 0;
-                for (Client client : clients) {
-                    int[] philosophsAndPlaces = philosophsAndPlacesList.get(clientNumber);
-                    // todo EATINGCOUNTERS
-                    System.out.println(philosophsAndPlaces[0] + " " + philosophsAndPlaces[1] + " " + philosophsAndPlaces[2]+ " " + philosophsAndPlaces[3]);
-                    client.init(philosophsAndPlaces[0], philosophsAndPlaces[1], mainSupervisor.getEatingCounters(), philosophsAndPlaces[2], philosophsAndPlaces[3], placeCount);
-                    clientNumber++;
-                }
+            // todo verteilung über die clients starten
+            int clientNumber = 0;
+            for (Client client : clients) {
+                int[] philosophsAndPlaces = philosophsAndPlacesList.get(clientNumber);
+                // todo EATINGCOUNTERS
+                System.out.println(philosophsAndPlaces[0] + " " + philosophsAndPlaces[1] + " " + philosophsAndPlaces[2] + " " + philosophsAndPlaces[3]);
+                client.init(philosophsAndPlaces[0], philosophsAndPlaces[1], mainSupervisor.getEatingCounters(), philosophsAndPlaces[2], philosophsAndPlaces[3], placeCount);
+                clientNumber++;
+            }
 
-                for (Client client : clients) {
-                    client.startClient();
-                }
+            for (Client client : clients) {
+                client.startClient();
+            }
         } catch (VssException e) {
             removeFromIpAdressList(e, e.getIpAdress());
             clients.clear();
             return false;
-            
-        }catch (RemoteException e) {
-            
-            if(actualIpAdress != "") {
+
+        } catch (RemoteException e) {
+
+            if (actualIpAdress != "") {
                 removeFromIpAdressList(e, actualIpAdress);
                 clients.clear();
             } else {
-            logging("RemoteEx at initialProc", e);
-                
+                logging("RemoteEx at initialProc", e);
+
             }
             return false;
-            
-        }catch (NotBoundException e) {
+
+        } catch (NotBoundException e) {
             logging("NotBound at initialProc", e);
             return false;
-            
+
         } catch (MalformedURLException e) {
             logging("Malformed at initialProc", e);
             return false;
-            
+
         } catch (Exception e) {
             logging("Exception at initialProc", e);
             return false;
         }
         return true;
-            
+
     }
 
     private void removeFromIpAdressList(Exception ex, String ipAdress) {
@@ -176,11 +184,14 @@ public class DistributionServer implements Server {
     public void addClient(String ipAdress) {
         DistributionServer.logging("adding client " + ipAdress, null);
         this.clientIpAdresses.add(ipAdress);
-        initClients();
+        if (!firstInit) {
+            DistributionServer.logging("Init clinets now");
+            initClients();
+        }
     }
 
     public static void logging(String message) {
-        System.out.println(message +  "\t\t\t" + System.currentTimeMillis());
+        System.out.println(message + "\t\t\t" + System.currentTimeMillis());
     }
 
     public static void logging(String message, Exception ex) {
