@@ -77,7 +77,7 @@ public class DistributionServer implements Server {
     }
 
     synchronized void initClients() {
-
+        DistributionServer.logging("Start init clients");
         while (!initializationProcess(firstInit)) {
             try {
                 Thread.sleep(1000);
@@ -85,6 +85,7 @@ public class DistributionServer implements Server {
                 Logger.getLogger(DistributionServer.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+        DistributionServer.logging("End init Clients");
 
     }
 

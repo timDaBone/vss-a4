@@ -119,6 +119,7 @@ public class DistributedClient implements Client {
 
     @Override
     public void init(int firstPhilosoph, int lastPhilosoph, List<Integer> eatingCounters, int firstPlace, int lastPlace, int placeCount) throws Exception {
+        DistributionServer.logging("Client init");
         if (!firstInit) {
             DistributionServer.logging("Wait for all philos to stop at stopClient");
             while (stoppedPhilosophs < this.lastPhilosoph - this.firstPhilosoph) {
@@ -154,6 +155,7 @@ public class DistributedClient implements Client {
 
     @Override
     public void startClient() throws RemoteException {
+        DistributionServer.logging("Client starts");
         
         synchronized (this) {
             this.philosophs.clear();
@@ -174,6 +176,7 @@ public class DistributedClient implements Client {
 
     @Override
     public void stopClient() throws RemoteException {
+        DistributionServer.logging("Client stops");
         synchronized (this) {
 
             for (Philosoph philosoph : philosophs) {
