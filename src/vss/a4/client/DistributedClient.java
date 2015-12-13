@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package vss.a4.client;
 
 import java.rmi.Naming;
@@ -22,21 +17,21 @@ import vss.a4.server.DistributionServer;
 import vss.a4.server.Server;
 
 /**
- *
- * @author abuch_000
+ * @author Andreas Buchmann
+ * @author Tim Böhnel
  */
 public class DistributedClient implements Client {
 
     public final static long PENALTY_TIME = 5000;
     public final static long THINKING_TIME = 100;
     public final static long SLEEPING_TIME = 100;
-    static int MAXIMUM_EATING_DIFFERENCE_AVERAGE = 10;
-    static long SLEEPING_TIME_SUPERVISOR = 100;
+    public final static int MAXIMUM_EATING_DIFFERENCE_AVERAGE = 10;
+    public final static long SLEEPING_TIME_SUPERVISOR = 100;
+    public final static long EATING_TIME = 100;
 
-    String serverIpAdress;
-    String clientIpAdress;
-    Server server;
-    private List<Client> clients;
+    private final List<Client> clients;
+    private final String clientIpAdress;
+    private final Server server;
     private int firstPhilosoph;
     private int lastPhilosoph;
     private List<Integer> eatingCounters;
@@ -58,7 +53,6 @@ public class DistributedClient implements Client {
     public DistributedClient(String serverIpAdress, String clientIpAdress, int registryPort, boolean DEBUG) throws Exception {
         DistributionServer.DEBUG = DEBUG;
         this.notAlreadyReported = true;
-        this.serverIpAdress = serverIpAdress;
         this.clientIpAdress = clientIpAdress;
         this.clients = new ArrayList<>();
         this.philosophs = new ArrayList<>();
@@ -109,11 +103,11 @@ public class DistributedClient implements Client {
     @Override
     public void setClients(Set<String> clientIpAdresses) throws VssException {
         DistributionServer.logging("Set clients");
-        // Cient behält nicht erreichbaren Client in Liste ?!?!
         this.clients.clear();
+        // Create RMI connection to all clients
         for (String ipAdress : clientIpAdresses) {
             if (!ipAdress.equals(this.clientIpAdress)) {
-                 DistributionServer.logging("Set client " + ipAdress);
+                DistributionServer.logging("Set client " + ipAdress);
                 try {
                     clients.add((Client) Naming.lookup("rmi://" + ipAdress + "/client"));
                 } catch (RemoteException ex) {
@@ -160,14 +154,11 @@ public class DistributedClient implements Client {
     @Override
     public void startClient() throws RemoteException {
         DistributionServer.logging("Client starts");
-        
         synchronized (this) {
             this.philosophs.clear();
-            // synchronizer because of ThreadState
-
+            // Start all philos
             for (int index = this.firstPhilosoph; index <= this.lastPhilosoph; index++) {
-                // TODO EATINGCOUNTER ÜBERGEBEN
-                Philosoph philosoph = new Philosoph(table, index, SLEEPING_TIME, THINKING_TIME, this.eatingCounters.get(index), this);
+                Philosoph philosoph = new Philosoph(table, index, this.eatingCounters.get(index), this);
                 this.philosophs.add(philosoph);
                 philosoph.start();
             }
@@ -190,7 +181,6 @@ public class DistributedClient implements Client {
     private void waitForPhilosophsStop() {
         DistributionServer.logging("Wait for all philos to stop at stopClient");
         if (!firstInit) {
-
             while (stoppedPhilosophs < this.lastPhilosoph - this.firstPhilosoph) {
                 DistributionServer.logging("Still waiting..." + stoppedPhilosophs);
                 try {
@@ -210,9 +200,11 @@ public class DistributedClient implements Client {
 
     @Override
     public void takeFork(int forkIndex) throws Exception {
+        // take local fork
         if (forkIndex >= this.firstPlace && forkIndex <= this.lastPlace) {
             this.table.takeFork(forkIndex);
         } else {
+            // take remote fork
             for (Client client : clients) {
                 if (forkIndex >= client.getFirstPlace() && forkIndex <= client.getLastPlace()) {
                     client.takeFork(forkIndex);
@@ -224,9 +216,11 @@ public class DistributedClient implements Client {
 
     @Override
     public void passBackFork(int forkIndex) throws Exception {
+        // pass back local fork
         if (forkIndex >= this.firstPlace && forkIndex <= this.lastPlace) {
             this.table.passBackFork(forkIndex);
         } else {
+            // pass back remote fork
             for (Client client : clients) {
                 if (forkIndex >= client.getFirstPlace() && forkIndex <= client.getLastPlace()) {
                     client.passBackFork(forkIndex);
@@ -238,8 +232,10 @@ public class DistributedClient implements Client {
 
     @Override
     public void leavePlace(int placeIndex) throws Exception {
+        // leave local place
         if (placeIndex >= this.firstPlace && placeIndex <= this.lastPlace) {
             this.table.leavePlace(placeIndex);
+            // leave remote place
         } else {
             for (Client client : clients) {
                 if (placeIndex >= client.getFirstPlace() && placeIndex <= client.getLastPlace()) {
@@ -292,7 +288,7 @@ public class DistributedClient implements Client {
 
     @Override
     public void punish() throws RemoteException {
-        for(Philosoph philosoph: philosophs) {
+        for (Philosoph philosoph : philosophs) {
             philosoph.punish();
         }
     }

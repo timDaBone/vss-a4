@@ -1,23 +1,18 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package vss.a4.client;
 
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 import vss.a4.server.DistributionServer;
 
 /**
- *
- * @author tboeh
+ * 
+ * @author Andreas Buchmann
+ * @author Tim Böhnel
  */
 public class Table {
 
-    private int startPlace;
-    private int lastPlace;
+    private final int startPlace;
+    private final int lastPlace;
     List<Fork> forks;
     List<Place> places;
 
@@ -26,8 +21,9 @@ public class Table {
         this.lastPlace = lastPlace;
         this.forks = new ArrayList<>();
         this.places = new ArrayList<>();
+        // Create all places and forks
         for (int index = startPlace; index <= lastPlace; index++) {
-            Fork fork = new Fork(index);
+            Fork fork = new Fork();
             Place place = new Place(index);
             this.forks.add(fork);
             this.places.add(place);
@@ -62,13 +58,13 @@ public class Table {
         }
         return -1;
     }
-    
+
     public void releaseAll() {
         DistributionServer.logging("Release all");
-        for(Place place: this.places) {
+        for (Place place : this.places) {
             place.leave();
         }
-        for(Fork fork: this.forks) {
+        for (Fork fork : this.forks) {
             fork.passBack();
         }
         DistributionServer.logging("All released");

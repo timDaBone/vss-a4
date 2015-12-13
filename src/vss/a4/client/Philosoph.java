@@ -1,39 +1,26 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package vss.a4.client;
 
 import java.rmi.RemoteException;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import vss.a4.server.DistributionServer;
 
 /**
- *
- * @author tboeh
+ * @author Andreas Buchmann
+ * @author Tim Böhnel
  */
 public class Philosoph extends Thread {
 
-    private DistributedClient distributedClient;
+    private final DistributedClient distributedClient;
     private int eatingCounter;
-    private boolean shouldRun;
-    private int index;
+    private final int index;
     private boolean willBePunished;
     private final Table table;
-    private final long thinkingTime;
-    private final long eatingTime;
 
-    public Philosoph(Table table, int index, long eatingTime, long thinkingTime, int eatingCounter, DistributedClient distributedClient) {
+    public Philosoph(Table table, int index, int eatingCounter, DistributedClient distributedClient) {
         this.distributedClient = distributedClient;
         this.eatingCounter = eatingCounter;
         this.index = index;
         this.table = table;
-        this.shouldRun = true;
-        this.eatingTime = eatingTime;
-        this.thinkingTime = thinkingTime;
     }
 
     public int getCounter() {
@@ -43,10 +30,10 @@ public class Philosoph extends Thread {
     @Override
     public void run() {
         try {
+            // Philo life
             while (distributedClient.shouldRun()) {
                 for (int eatCounter = 0; eatCounter < 3; eatCounter++) {
                     thinking();
-
                     if (willBePunished) {
                         DistributionServer.logging(this + " starts punishment");
                         Thread.sleep(DistributedClient.PENALTY_TIME);
@@ -60,14 +47,7 @@ public class Philosoph extends Thread {
                 sleeping();
             }
         } catch (RemoteException e) {
-            shouldRun = false;
             DistributionServer.logging("RemoteException at Philosoph-" + getIndex(), e);
-            /*try {
-                distributedClient.reportError();
-
-            } catch (RemoteException ex) {
-                DistributionServer.logging("Nested RemoteException at Philosoph-" + getIndex(), ex);
-            }*/
         } catch (Exception e) {
             DistributionServer.logging("Exception at Philosoph-" + getIndex(), e);
         }
@@ -83,6 +63,8 @@ public class Philosoph extends Thread {
         DistributionServer.logging("Philosoph-" + this.getIndex() + " enqueues.");
         Place minPlace = table.getPlace(distributedClient.getStartPlace());
         DistributionServer.logging("Philosoph-" + this.getIndex() + " Has min place");
+
+        // Try enqueue local and get shortest queue
         for (Place place : table.getPlaces()) {
             if (place.tryEnqueue()) {
                 System.out.println(this + " is enqueued at local place " + place.getIndex());
@@ -94,6 +76,7 @@ public class Philosoph extends Thread {
         }
         DistributionServer.logging("Philosoph-" + this.getIndex() + " tried enqueue locally");
 
+        // Try enqueue remote
         List<Client> clients = distributedClient.getClients();
         DistributionServer.logging("Philosoph-" + this.getIndex() + " has clinets");
         for (Client client : clients) {
@@ -106,6 +89,7 @@ public class Philosoph extends Thread {
 
         DistributionServer.logging("Philosoph-" + this.getIndex() + " tried enqueue remote");
 
+        // Enqueue at local place with shortest queue
         minPlace.enqueue();
         System.out.println(this + " is enqueued at local minPlace " + minPlace.getIndex());
         return minPlace.getIndex();
@@ -120,8 +104,7 @@ public class Philosoph extends Thread {
         DistributionServer.logging(this + " goes eating");
         DistributionServer.logging(this + " took place " + placeIndex);
 
-        // Konvention: im Uhrzeigersinn -> größere Zahl ist links, kleinere Zahl ist rechts
-        // Konvention: Plätze an geraden Indizes nehmen zuerst die linke Gabel, ungerade die rechte Gabel
+        // Even philos begin with "left fork", odd with "right fork"
         if (placeIndex % 2 == 0) {
             distributedClient.takeFork((placeIndex + 1) % distributedClient.getPlaceCount());
             DistributionServer.logging(this + " has fork " + (placeIndex + 1) % distributedClient.getPlaceCount());
@@ -138,7 +121,7 @@ public class Philosoph extends Thread {
 
         // schbaggeddi  schbaggeddi  schbaggeddi mmmmmmhhhhhh  schbaggeddi mmmmmmhhhhhh schbaggeddi  
         // schbaggeddi mmmmmmhhhhhh schbaggeddi  schbaggeddi  schbaggeddi  schbaggeddi mmmmmmhhhhhh
-        Thread.sleep(this.eatingTime);
+        Thread.sleep(DistributedClient.EATING_TIME);
 
         this.eatingCounter++;
 

@@ -1,14 +1,8 @@
 package vss.a4.server;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.rmi.Naming;
-import java.rmi.NotBoundException;
-import vss.a4.client.Client;
-import vss.a4.client.DistributedClient;
 
 /**
  *
@@ -25,7 +19,7 @@ public class UserInterface extends Thread {
             UserInterface ui = new UserInterface(args[0]);
             ui.start();
         } catch (Exception ex) {
-            ex.printStackTrace();
+            DistributionServer.logging("", ex);
         }
     }
 
@@ -38,13 +32,11 @@ public class UserInterface extends Thread {
     public void run() {
         while (true) {
             try {
-                System.out.println("Enter new configuration (Places,Philosophs): ");
+                DistributionServer.logging("Enter new configuration (Places,Philosophs): ");
                 String startConfig = reader.readLine();
                 String[] startConfigParts = startConfig.split(",");
                 int placeCount = Integer.parseInt(startConfigParts[0]);
                 int philliCount = Integer.parseInt(startConfigParts[1]);
-                //System.out.println("Connect Clients and press Enter if all Clients connected ... ");
-                //reader.readLine();
                 server.initServer(placeCount, philliCount);
                 firstInit = false;
             } catch (Exception e) {

@@ -18,19 +18,19 @@ import vss.a4.client.Client;
 import vss.a4.exceptions.VssException;
 
 /**
- *
- * @author abuch_000
+ * @author Andreas Buchmann
+ * @author Tim Böhnel
  */
 public class DistributionServer implements Server {
 
     public static boolean DEBUG;
 
-    Set<String> clientIpAdresses;
-    List<Client> clients;
+    private final Set<String> clientIpAdresses;
+    private final List<Client> clients;
     private int philosophCount;
     private int placeCount;
     private MainSupervisor mainSupervisor;
-    List<Integer> philosophEatingCounters;
+    private List<Integer> philosophEatingCounters;
 
     public DistributionServer(boolean debug) throws Exception {
         this.clientIpAdresses = new HashSet<>();
@@ -48,10 +48,8 @@ public class DistributionServer implements Server {
     public static void main(String[] args) {
         try {
             DistributionServer server = new DistributionServer(Boolean.parseBoolean(args[0]));
-            //UserInterface userInterface = new UserInterface(server);
-            //userInterface.start();
         } catch (Exception ex) {
-            ex.printStackTrace();
+            DistributionServer.logging("", ex);
         }
     }
 
@@ -65,7 +63,7 @@ public class DistributionServer implements Server {
 
     private void stopClients() throws RemoteException {
         DistributionServer.logging("stopClients()");
-
+        
         for (Iterator<Client> iterator = clients.iterator(); iterator.hasNext();) {
             Client client = iterator.next();
             try {
@@ -114,7 +112,6 @@ public class DistributionServer implements Server {
                 client = (Client) Naming.lookup("rmi://" + ipAdress + "/client");
 
                 DistributionServer.logging("Working on ipAdress " + ipAdress, null);
-                //DistributionServer.logging("Working on ipAdress " + client, null);
                 if (client != null) {
 
                     clients.add(client);
@@ -135,14 +132,11 @@ public class DistributionServer implements Server {
             mainSupervisor.start();
 
             List<int[]> philosophsAndPlacesList = calculateDistribution();
-
-            // todo verteilung über die clients starten
             int clientNumber = 0;
             DistributionServer.logging("Init all clients now, client.size(): " + clients.size());
             for (Client client : clients) {
 
                 int[] philosophsAndPlaces = philosophsAndPlacesList.get(clientNumber);
-                // todo EATINGCOUNTERS
                 DistributionServer.logging("#" + clientNumber + "#" + philosophsAndPlaces[0] + " " + philosophsAndPlaces[1] + " " + philosophsAndPlaces[2] + " " + philosophsAndPlaces[3]);
                 client.init(philosophsAndPlaces[0], philosophsAndPlaces[1], mainSupervisor.getEatingCounters(), philosophsAndPlaces[2], philosophsAndPlaces[3], placeCount);
                 clientNumber++;
@@ -159,7 +153,7 @@ public class DistributionServer implements Server {
 
         } catch (RemoteException e) {
 
-            if (actualIpAdress != "") {
+            if (actualIpAdress.equals("")) {
                 removeFromIpAdressList(e, actualIpAdress);
                 clients.clear();
             } else {
@@ -205,11 +199,10 @@ public class DistributionServer implements Server {
 
     public static void logging(String message, Exception ex) {
         if (DEBUG && ex == null) {
-            System.out.println(message);
+            DistributionServer.logging(message);
         }
         if (DEBUG && ex != null) {
-            System.out.println(message);
-            ex.printStackTrace();
+            DistributionServer.logging(message, ex);
         }
     }
 
