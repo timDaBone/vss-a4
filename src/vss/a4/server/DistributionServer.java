@@ -48,6 +48,7 @@ public class DistributionServer implements Server {
     public static void main(String[] args) {
         try {
             DistributionServer server = new DistributionServer(Boolean.parseBoolean(args[0]));
+            DistributionServer.logging("SERVER STARTED");
         } catch (Exception ex) {
             DistributionServer.logging("", ex);
         }
@@ -57,8 +58,6 @@ public class DistributionServer implements Server {
         this.placeCount = placeCount;
         this.philosophCount = philliCount;
         initClients();
-        DistributionServer.logging("waiting time is over");
-
     }
 
     private void stopClients() throws RemoteException {
@@ -153,12 +152,11 @@ public class DistributionServer implements Server {
 
         } catch (RemoteException e) {
 
-            if (actualIpAdress.equals("")) {
+            if (!actualIpAdress.equals("")) {
                 removeFromIpAdressList(e, actualIpAdress);
                 clients.clear();
             } else {
                 logging("RemoteEx at initialProc", e);
-
             }
             return false;
 
@@ -194,15 +192,16 @@ public class DistributionServer implements Server {
     }
 
     public static void logging(String message) {
-        System.out.println(message + "\t\t\t" + System.currentTimeMillis());
+        System.out.println(message);
     }
 
     public static void logging(String message, Exception ex) {
         if (DEBUG && ex == null) {
-            DistributionServer.logging(message);
+            System.out.println(message);
         }
         if (DEBUG && ex != null) {
-            DistributionServer.logging(message, ex);
+            System.out.println(message);
+            ex.printStackTrace();
         }
     }
 

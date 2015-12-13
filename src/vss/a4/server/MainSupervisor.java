@@ -26,12 +26,12 @@ public class MainSupervisor extends Thread {
         DistributionServer.logging("MainSupervisor Created");
         this.clients = new HashMap<>();
         this.philosophEatingCounters = philosophEatingCounters;
-        DistributionServer.logging("SIIIIIIIIIIIIZZEZEEEEE PHILO LISTE: " + philosophEatingCounters.size());
+        DistributionServer.logging("SIIIIIIIIIIIIZZEZEEEEE PHILO LISTE: " + philosophEatingCounters.size(), null);
         DistributionServer.logging("Philocount: " + philoCount);
         if (philoCount > philosophEatingCounters.size()) {
             DistributionServer.logging("Add " + (philoCount - philosophEatingCounters.size()) + " philos");
             for (int index = philosophEatingCounters.size(); index < philoCount; index++) {
-                DistributionServer.logging("ADDD PHILO AT INDEX " + index);
+                DistributionServer.logging("ADDD PHILO AT INDEX " + index, null);
                 philosophEatingCounters.add(0);
             }
         } else if (philoCount < philosophEatingCounters.size()) {
@@ -39,7 +39,7 @@ public class MainSupervisor extends Thread {
                 philosophEatingCounters.remove(index);
             }
         }
-        DistributionServer.logging("PHILO SIZE AFTER: " + philosophEatingCounters.size());
+        DistributionServer.logging("PHILO SIZE AFTER: " + philosophEatingCounters.size(), null);
         this.distributionServer = distributionServer;
     }
 
@@ -70,20 +70,22 @@ public class MainSupervisor extends Thread {
                         // Set average to client map
                         client.setValue(averageEatingCount);
 
-                        DistributionServer.logging("MainSupervisor get eating counter " + philoCount);
+                        DistributionServer.logging("MainSupervisor get eating counters " + philoCount);
                     }
 
                     int allEatingCount = 0;
                     for (Entry<Client, Integer> client : clients.entrySet()) {
                         allEatingCount += client.getValue();
                     }
-
-                    int averageAllEatingCount = allEatingCount / clients.size();
+                    
+                    int averageAllEatingCount = 0;
+                    if(clients.size() > 0)
+                        averageAllEatingCount = allEatingCount / clients.size();
 
                     for (Entry<Client, Integer> client : clients.entrySet()) {
                         if (client.getValue() >= averageAllEatingCount + MainSupervisor.GLOBAL_MAX_EATING_DIFFERENCE) {
                             client.getKey().punish();
-                            DistributionServer.logging("PUUNNNIIISHMEEENNNNTTT");
+                            DistributionServer.logging("GLOBAL PUUNNNIIISHMEEENNNNTTT");
                         }
                     }
 
