@@ -8,8 +8,10 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import vss.a4.client.Client;
@@ -23,7 +25,7 @@ public class DistributionServer implements Server {
 
     public static boolean DEBUG;
 
-    List<String> clientIpAdresses;
+    Set<String> clientIpAdresses;
     List<Client> clients;
     private int philosophCount;
     private int placeCount;
@@ -31,7 +33,7 @@ public class DistributionServer implements Server {
     List<Integer> philosophEatingCounters;
 
     public DistributionServer(boolean debug) throws Exception {
-        this.clientIpAdresses = new ArrayList<>();
+        this.clientIpAdresses = new HashSet<>();
         this.clients = new ArrayList<>();
         this.mainSupervisor = null;
         this.DEBUG = debug;

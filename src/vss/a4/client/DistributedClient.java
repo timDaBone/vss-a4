@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import vss.a4.exceptions.VssException;
@@ -106,7 +107,7 @@ public class DistributedClient implements Client {
     }
 
     @Override
-    public void setClients(List<String> clientIpAdresses) throws VssException {
+    public void setClients(Set<String> clientIpAdresses) throws VssException {
         DistributionServer.logging("Set clients");
         // Cient behält nicht erreichbaren Client in Liste ?!?!
         this.clients.clear();

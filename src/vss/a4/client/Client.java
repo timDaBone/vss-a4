@@ -9,6 +9,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import vss.a4.exceptions.VssException;
 
 /**
@@ -16,7 +17,7 @@ import vss.a4.exceptions.VssException;
  * @author abuch_000
  */
 public interface Client extends Remote {
-    public void setClients(List<String> clientIpAdresses) throws VssException, RemoteException;
+    public void setClients(Set<String> clientIpAdresses) throws VssException, RemoteException;
     public void init(int firstPhilosoph, int lastPhilosoph, List<Integer> eatingCounters, int firstPlace, int lastPlace, int placeCount) throws Exception;
     public void startClient() throws RemoteException;
     public void stopClient() throws RemoteException;
